@@ -7,17 +7,17 @@ import androidx.room.PrimaryKey
 import java.util.UUID
 
 @Entity(
-    tableName = "category",
+    tableName = "data_type",
     indices = [
         Index(value = ["uuid"], unique = true),
         Index("deleted_at")
     ]
 )
-data class CategoryEntity(
+data class DataTypeEntity(
 
     @PrimaryKey(autoGenerate = true)
-    @ColumnInfo(name = "category_id")
-    val categoryId: Int = 0,
+    @ColumnInfo(name = "data_type_id")
+    val dataTypeId: Int = 0,
 
     @ColumnInfo(name = "name")
     val name: String,

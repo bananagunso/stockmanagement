@@ -3,27 +3,43 @@ package com.example.stockmanagement.data.entity
 import androidx.room.ColumnInfo
 import androidx.room.Index
 import androidx.room.Entity
+import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import java.util.UUID
 
 @Entity(
-    tableName = "category",
+    tableName = "attribute",
+    foreignKeys = [
+        ForeignKey(
+            entity = DataTypeEntity::class,
+            parentColumns = ["data_type_id"],
+            childColumns = ["data_type_id"],
+            onDelete = ForeignKey.RESTRICT
+        )
+    ],
     indices = [
         Index(value = ["uuid"], unique = true),
         Index("deleted_at")
     ]
 )
-data class CategoryEntity(
+
+data class AttributeEntity(
 
     @PrimaryKey(autoGenerate = true)
-    @ColumnInfo(name = "category_id")
-    val categoryId: Int = 0,
+    @ColumnInfo(name = "attribute_id")
+    val attributeId: Int = 0,
 
     @ColumnInfo(name = "name")
     val name: String,
 
     @ColumnInfo(name = "created_at")
     val createdAt: Long = System.currentTimeMillis(),
+
+    @ColumnInfo(name = "data_type_id")
+    val dataTypeId: Int,
+
+    @ColumnInfo(name = "unit")
+    val unit: String? = null,
 
     @ColumnInfo(name = "updated_at")
     val updatedAt: Long = System.currentTimeMillis(),

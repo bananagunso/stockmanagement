@@ -2,29 +2,29 @@ package com.example.stockmanagement.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.stockmanagement.data.dao.CategoryDao
-import com.example.stockmanagement.data.entity.CategoryEntity
+import com.example.stockmanagement.data.dao.DataTypeDao
+import com.example.stockmanagement.data.entity.DataTypeEntity
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.launch
 
-class CategoryViewModel(
-    private val categoryDao: CategoryDao
+class DataTypeViewModel(
+    private val dataTypeDao: DataTypeDao
 ) : ViewModel() {
 
-    val categories: StateFlow<List<CategoryEntity>> =
-        categoryDao.getAll()
+    val categories: StateFlow<List<DataTypeEntity>> =
+        dataTypeDao.getAll()
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5000),
                 initialValue = emptyList()
             )
     
-    fun addCategory(name: String) {
+    fun addDataType(name: String) {
         viewModelScope.launch {
-            categoryDao.insert(
-                CategoryEntity(
+            dataTypeDao.insert(
+                DataTypeEntity(
                     name = name
                 )
             )

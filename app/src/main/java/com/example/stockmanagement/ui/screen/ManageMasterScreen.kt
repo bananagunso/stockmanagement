@@ -9,7 +9,8 @@ import androidx.compose.ui.Modifier
 @Composable
 fun ManageMasterScreen(
     onCategoryListClick: () -> Unit,
-    onAttributeListClick: () -> Unit
+    onAttributeListClick: () -> Unit,
+    onDataTypeListClick: () -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -24,6 +25,11 @@ fun ManageMasterScreen(
             onClick = onAttributeListClick
         ) {
             Text("属性管理")
+        }
+        Button(
+            onClick = onDataTypeListClick
+        ) {
+            Text("データタイプ管理")
         }
     }
 }
