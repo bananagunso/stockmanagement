@@ -1,13 +1,20 @@
 package com.example.stockmanagement.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.stockmanagement.data.database.DatabaseProvider
+import com.example.stockmanagement.ui.screen.CategoryListScreen
+import com.example.stockmanagement.ui.screen.AttributeListScreen
 import com.example.stockmanagement.ui.screen.HomeScreen
 import com.example.stockmanagement.ui.screen.ManageDataScreen
 import com.example.stockmanagement.ui.screen.ManageMasterScreen
 import com.example.stockmanagement.ui.screen.SearchScreen
+import com.example.stockmanagement.ui.viewmodel.CategoryViewModel
+import com.example.stockmanagement.ui.viewmodel.CategoryViewModelFactory
 
 @Composable
 fun AppNavigation() {
@@ -25,10 +32,10 @@ fun AppNavigation() {
                     navController.navigate("search")
                 },
                 onManageMasterClick = {
-                    navController.navigate("manage_master")
+                    navController.navigate("manageMaster")
                 },
                 onManageDataClick = {
-                    navController.navigate("manage_data")
+                    navController.navigate("manageData")
                 },
             )
         }
@@ -36,11 +43,36 @@ fun AppNavigation() {
         composable("search") {
             SearchScreen()
         }
-        composable("manage_master") {
-            ManageMasterScreen()
+        composable("manageMaster") {
+            ManageMasterScreen(
+                onCategoryListClick = {
+                    navController.navigate("categoryList")
+                },
+                onAttributeListClick = {
+                    navController.navigate("attributeList")
+                },
+            )
         }
-        composable("manage_data") {
+
+        composable("manageData") {
             ManageDataScreen()
         }
+        composable("categoryList") {
+            val context = LocalContext.current
+            val database = DatabaseProvider.getDatabase(context)
+            val factory = CategoryViewModelFactory(
+                database.categoryDao()
+            )
+            val viewModel: CategoryViewModel = viewModel(
+                factory = factory
+            )
+            CategoryListScreen(viewModel)
+        }
+
+        composable("AttributeList") {
+            AttributeListScreen()
+        }
+
+
     }
 }
