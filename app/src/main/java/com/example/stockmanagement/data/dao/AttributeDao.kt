@@ -22,7 +22,6 @@ interface AttributeDao {
         attribute.attribute_id AS attributeId,
         attribute.name,
         attribute.data_type_id AS dataTypeId,
-        attribute.unit,
         data_type.name AS dataTypeName
     FROM attribute
     INNER JOIN data_type

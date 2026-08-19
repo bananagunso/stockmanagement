@@ -59,12 +59,11 @@ fun AttributeListScreen(
                 onDismiss = {
                     showDialog = false
                 },
-                onSave = { name, dataTypeId, unit ->
+                onSave = { name, dataTypeId ->
 
                     viewModel.addAttribute(
                         name,
-                        dataTypeId,
-                        unit
+                        dataTypeId
                     )
 
                     showDialog = false
@@ -78,13 +77,12 @@ fun AttributeListScreen(
 fun AttributeAddDialog(
     dataTypes: List<DataTypeEntity>,
     onDismiss: () -> Unit,
-    onSave: (String, Int, String?) -> Unit
+    onSave: (String, Int) -> Unit
 ) {
     var selectedDataType by remember {
         mutableStateOf<DataTypeEntity?>(null)
     }
     var name by remember { mutableStateOf("") }
-    var unit by remember { mutableStateOf("") }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -113,16 +111,6 @@ fun AttributeAddDialog(
                         selectedDataType = it
                     }
                 )
-
-                TextField(
-                    value = unit,
-                    onValueChange = {
-                        unit = it
-                    },
-                    label = {
-                        Text("単位")
-                    }
-                )
             }
         },
 
@@ -132,8 +120,7 @@ fun AttributeAddDialog(
                     selectedDataType?.let {
                         onSave(
                             name,
-                            it.dataTypeId,
-                            unit.ifBlank { null }
+                            it.dataTypeId
                         )
                     }
                 }

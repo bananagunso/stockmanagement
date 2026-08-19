@@ -12,16 +12,15 @@ import kotlinx.coroutines.launch
 import com.example.stockmanagement.data.model.AttributeWithDataType
 class AttributeViewModel(
     private val attributeDao: AttributeDao,
-    private val dataTypeDao: DataTypeDao,
+    dataTypeDao: DataTypeDao
 ) : ViewModel() {
 
-    fun addAttribute(name: String, dataTypeId: Int, unit: String?) {
+    fun addAttribute(name: String, dataTypeId: Int) {
         viewModelScope.launch {
             attributeDao.insert(
                 AttributeEntity(
                     name = name,
-                    dataTypeId = dataTypeId,
-                    unit = unit,
+                    dataTypeId = dataTypeId
                 )
             )
         }

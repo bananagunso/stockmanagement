@@ -18,8 +18,8 @@ class AttributeViewModelFactory(
 
             @Suppress("UNCHECKED_CAST")
             return AttributeViewModel(
-                attributeDao,
-                dataTypeDao
+                attributeDao = attributeDao,
+                dataTypeDao = dataTypeDao
             ) as T
         }
 

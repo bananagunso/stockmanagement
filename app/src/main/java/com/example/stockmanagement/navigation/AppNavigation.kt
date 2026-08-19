@@ -18,8 +18,11 @@ import com.example.stockmanagement.ui.screen.DataTypeListScreen
 import com.example.stockmanagement.viewmodel.DataTypeViewModel
 import com.example.stockmanagement.viewmodel.DataTypeViewModelFactory
 import com.example.stockmanagement.ui.screen.AttributeListScreen
+import com.example.stockmanagement.ui.screen.CategoryAttributeListScreen
 import com.example.stockmanagement.viewmodel.AttributeViewModel
 import com.example.stockmanagement.viewmodel.AttributeViewModelFactory
+import com.example.stockmanagement.viewmodel.CategoryAttributeViewModel
+import com.example.stockmanagement.viewmodel.CategoryAttributeViewModelFactory
 
 @Composable
 fun AppNavigation() {
@@ -56,6 +59,9 @@ fun AppNavigation() {
                 onAttributeListClick = {
                     navController.navigate("attributeList")
                 },
+                onCategoryAttributeListClick = {
+                    navController.navigate("categoryattributeList")
+                },
                 onDataTypeListClick = {
                     navController.navigate("datatypeList")
                 },
@@ -89,6 +95,21 @@ fun AppNavigation() {
             )
             AttributeListScreen(viewModel)
         }
+
+        composable("CategoryAttributeList") {
+            val context = LocalContext.current
+            val database = DatabaseProvider.getDatabase(context)
+            val factory = CategoryAttributeViewModelFactory(
+                database.categoryAttributeDao(),
+                database.categoryDao(),
+                database.attributeDao(),
+            )
+            val viewModel: CategoryAttributeViewModel = viewModel(
+                factory = factory
+            )
+            CategoryAttributeListScreen(viewModel)
+        }
+
 
         composable("DataTypeList") {
             val context = LocalContext.current
