@@ -40,4 +40,20 @@ class AttributeViewModel(
             SharingStarted.WhileSubscribed(5000),
             emptyList()
         )
+
+    fun editAttribute(attribute: AttributeWithDataType, newName: String, newDataTypeId: Int) {
+        viewModelScope.launch {
+            val entity = attributeDao.getById(attribute.attributeId)
+
+            attributeDao.update(
+                entity.copy(
+                    name = newName,
+                    dataTypeId = newDataTypeId,
+                    updatedAt = System.currentTimeMillis(),
+                    syncVersion = entity.syncVersion + 1
+                )
+            )
+        }
+    }
+
 }

@@ -3,7 +3,9 @@ package com.example.stockmanagement.data.dao
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Update
 import com.example.stockmanagement.data.entity.AttributeEntity
+import com.example.stockmanagement.data.entity.DataTypeEntity
 import com.example.stockmanagement.data.model.AttributeWithDataType
 import kotlinx.coroutines.flow.Flow
 
@@ -29,4 +31,10 @@ interface AttributeDao {
 """
     )
     fun getAllWithDataType(): Flow<List<AttributeWithDataType>>
+
+    @Update
+    suspend fun update(attribute: AttributeEntity)
+
+    @Query("SELECT * FROM attribute WHERE attribute_id = :id")
+    suspend fun getById(id: Int): AttributeEntity
 }

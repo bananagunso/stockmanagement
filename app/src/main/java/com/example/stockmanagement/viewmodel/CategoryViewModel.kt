@@ -30,4 +30,16 @@ class CategoryViewModel(
             )
         }
     }
+
+    fun editCategory(category: CategoryEntity, newName: String) {
+        viewModelScope.launch {
+            categoryDao.update(
+                category.copy(
+                    name = newName,
+                    updatedAt = System.currentTimeMillis(),
+                    syncVersion = category.syncVersion + 1
+                )
+            )
+        }
+    }
 }

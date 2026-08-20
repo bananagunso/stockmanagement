@@ -1,6 +1,7 @@
 package com.example.stockmanagement.ui.screen
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.AlertDialog
@@ -23,16 +24,22 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.example.stockmanagement.data.entity.DataTypeEntity
+import com.example.stockmanagement.data.model.AttributeWithDataType
 import com.example.stockmanagement.viewmodel.AttributeViewModel
 
 
 @Composable
+@OptIn(ExperimentalMaterial3Api::class)
 fun AttributeListScreen(
     viewModel: AttributeViewModel
 ) {
     var showDialog by remember { mutableStateOf(false) }
     val attributes by viewModel.attributes.collectAsState()
     val dataTypes by viewModel.dataTypes.collectAsState()
+    var editingAttribute by remember {mutableStateOf<AttributeWithDataType?>(null)}
+    var inputName by remember { mutableStateOf("") }
+    var selectedDataTypeId by remember { mutableStateOf<Int?>(null) }
+    var dataTypeExpanded by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -40,11 +47,112 @@ fun AttributeListScreen(
         Text("属性一覧")
         LazyColumn {
             items(attributes) { attribute ->
-                Text(
-                    text = "${attribute.name} (${attribute.dataTypeName})"
-                )
+                Row {
+                    Text(
+                        text = "${attribute.name} (${attribute.dataTypeName})"
+                    )
+                    Button(
+                        onClick = {
+                            editingAttribute = attribute
+                            inputName = attribute.name
+                            selectedDataTypeId = attribute.dataTypeId
+                        }
+                    ) {
+                        Text("編集")
+                    }
+                }
             }
         }
+
+        if (editingAttribute != null) {
+            AlertDialog(
+                onDismissRequest = {
+                    editingAttribute = null
+                },
+                title = {
+                    Text("属性編集")
+                },
+                text = {
+                    Column {
+                        OutlinedTextField(
+                            value = inputName,
+                            onValueChange = {
+                                inputName = it
+                            },
+                            label = {
+                                Text("属性")
+                            }
+                        )
+
+//                        Spacer(modifier = Modifier.height(8.dp))
+
+                        ExposedDropdownMenuBox(
+                            expanded = dataTypeExpanded,
+                            onExpandedChange = {
+                                dataTypeExpanded = !dataTypeExpanded
+                            }
+                        ) {
+                            OutlinedTextField(
+                                value = dataTypes
+                                    .find { it.dataTypeId == selectedDataTypeId }
+                                    ?.name ?: "",
+                                onValueChange = {},
+                                readOnly = true,
+                                label = {
+                                    Text("データタイプ")
+                                },
+                                trailingIcon = {
+                                    ExposedDropdownMenuDefaults.TrailingIcon(
+                                        expanded = dataTypeExpanded
+                                    )
+                                },
+                                modifier = Modifier.menuAnchor(
+                                    type = ExposedDropdownMenuAnchorType.PrimaryNotEditable
+                                )
+                            )
+
+                            ExposedDropdownMenu(
+                                expanded = dataTypeExpanded,
+                                onDismissRequest = {
+                                    dataTypeExpanded = false
+                                }
+                            ) {
+                                dataTypes.forEach { dataType ->
+                                    DropdownMenuItem(
+                                        text = {
+                                            Text(dataType.name)
+                                        },
+                                        onClick = {
+                                            selectedDataTypeId = dataType.dataTypeId
+                                            dataTypeExpanded = false
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
+                },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            selectedDataTypeId?.let { dataTypeId ->
+                                viewModel.editAttribute(
+                                    attribute = editingAttribute!!,
+                                    newName = inputName,
+                                    newDataTypeId = dataTypeId
+                                )
+                            }
+
+                            editingAttribute = null
+                        }
+                    ) {
+                        Text("保存")
+                    }
+                }
+            )
+        }
+
+
         FloatingActionButton(
             onClick = {
                 showDialog = true

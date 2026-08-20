@@ -3,6 +3,7 @@ package com.example.stockmanagement.data.dao
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Update
 import com.example.stockmanagement.data.entity.CategoryAttributeEntity
 import com.example.stockmanagement.data.model.CategoryWithAttribute
 import kotlinx.coroutines.flow.Flow
@@ -32,4 +33,7 @@ interface CategoryAttributeDao {
     """
     )
     fun getAllWithAttribute(): Flow<List<CategoryWithAttribute>>
+
+    @Update
+    suspend fun update(datatype: CategoryAttributeEntity)
 }

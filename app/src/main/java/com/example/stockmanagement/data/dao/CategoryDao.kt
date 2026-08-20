@@ -3,6 +3,7 @@ package com.example.stockmanagement.data.dao
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Update
 import com.example.stockmanagement.data.entity.CategoryEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -14,4 +15,7 @@ interface CategoryDao {
 
     @Insert
     suspend fun insert(category: CategoryEntity)
+
+    @Update
+    suspend fun update(category: CategoryEntity)
 }

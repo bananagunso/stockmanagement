@@ -13,7 +13,7 @@ class DataTypeViewModel(
     private val dataTypeDao: DataTypeDao
 ) : ViewModel() {
 
-    val categories: StateFlow<List<DataTypeEntity>> =
+    val dataTypes: StateFlow<List<DataTypeEntity>> =
         dataTypeDao.getAll()
             .stateIn(
                 scope = viewModelScope,
@@ -26,6 +26,18 @@ class DataTypeViewModel(
             dataTypeDao.insert(
                 DataTypeEntity(
                     name = name
+                )
+            )
+        }
+    }
+
+    fun editDataType(dataType: DataTypeEntity, newName: String) {
+        viewModelScope.launch {
+            dataTypeDao.update(
+                dataType.copy(
+                    name = newName,
+                    updatedAt = System.currentTimeMillis(),
+                    syncVersion = dataType.syncVersion + 1
                 )
             )
         }

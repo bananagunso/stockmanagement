@@ -3,6 +3,7 @@ package com.example.stockmanagement.data.dao
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Update
 import com.example.stockmanagement.data.entity.DataTypeEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -13,5 +14,8 @@ interface DataTypeDao {
     fun getAll(): Flow<List<DataTypeEntity>>
 
     @Insert
-    suspend fun insert(datatype: DataTypeEntity)
+    suspend fun insert(dataType: DataTypeEntity)
+
+    @Update
+    suspend fun update(dataType: DataTypeEntity)
 }
