@@ -44,7 +44,6 @@ class AttributeViewModel(
     fun editAttribute(attribute: AttributeWithDataType, newName: String, newDataTypeId: Int) {
         viewModelScope.launch {
             val entity = attributeDao.getById(attribute.attributeId)
-
             attributeDao.update(
                 entity.copy(
                     name = newName,
@@ -55,5 +54,4 @@ class AttributeViewModel(
             )
         }
     }
-
 }

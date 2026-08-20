@@ -51,4 +51,17 @@ class CategoryAttributeViewModel(
             SharingStarted.WhileSubscribed(5000),
             emptyList()
         )
+
+    fun editCategoryAttribute(categoryAttribute: CategoryWithAttribute, newUnit: String ) {
+        viewModelScope.launch {
+            val entity = categoryAttributeDao.getById(categoryAttribute.categoryAttributeId)
+            categoryAttributeDao.update(
+                entity.copy(
+                    unit = newUnit,
+                    updatedAt = System.currentTimeMillis(),
+                    syncVersion = entity.syncVersion + 1
+                )
+            )
+        }
+    }
 }

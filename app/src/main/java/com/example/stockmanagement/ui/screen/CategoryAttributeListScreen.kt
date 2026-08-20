@@ -1,6 +1,7 @@
 package com.example.stockmanagement.ui.screen
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.AlertDialog
@@ -24,10 +25,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.example.stockmanagement.data.entity.AttributeEntity
 import com.example.stockmanagement.data.entity.CategoryEntity
+import com.example.stockmanagement.data.model.CategoryWithAttribute
 import com.example.stockmanagement.viewmodel.CategoryAttributeViewModel
 
 
 @Composable
+@OptIn(ExperimentalMaterial3Api::class)
 fun CategoryAttributeListScreen(
     viewModel: CategoryAttributeViewModel
 ) {
@@ -35,6 +38,9 @@ fun CategoryAttributeListScreen(
     val categoryAttributes by viewModel.categoryAttributes.collectAsState()
     val categories by viewModel.categories.collectAsState()
     val attributes by viewModel.attributes.collectAsState()
+    var editingCategoryAttribute by remember {mutableStateOf<CategoryWithAttribute?>(null)}
+    var inputUnit by remember { mutableStateOf("") }
+
 
     Column(
         modifier = Modifier
@@ -44,14 +50,60 @@ fun CategoryAttributeListScreen(
 
         LazyColumn {
             items(categoryAttributes) { categoryAttribute ->
-                Text(
-                    text = "${categoryAttribute.categoryAttributeId} " +
-                            "${categoryAttribute.categoryName} " +
-                            "${categoryAttribute.attributeName} " +
-                            (categoryAttribute.unit ?: "")
-                )
+                Row {
+                    Text(
+                        text = "${categoryAttribute.categoryAttributeId} " +
+                                "${categoryAttribute.categoryName} " +
+                                "${categoryAttribute.attributeName} " +
+                                (categoryAttribute.unit ?: "")
+                    )
+                    Button(
+                        onClick = {
+                            editingCategoryAttribute = categoryAttribute
+                            inputUnit = categoryAttribute.unit ?: ""
+                        }
+                    ) {
+                        Text("編集")
+                    }
+                }
             }
         }
+
+        if (editingCategoryAttribute != null) {
+            AlertDialog(
+                onDismissRequest = {
+                    editingCategoryAttribute = null
+                },
+                title = {
+                    Text("カテゴリ・属性単位編集")
+                },
+                text = {
+                    OutlinedTextField(
+                        value = inputUnit,
+                        onValueChange = {
+                            inputUnit = it
+                        },
+                        label = {
+                            Text("単位")
+                        }
+                    )
+                },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            viewModel.editCategoryAttribute(
+                                categoryAttribute = editingCategoryAttribute!!,
+                                newUnit = inputUnit
+                            )
+                            editingCategoryAttribute = null
+                        }
+                    ) {
+                        Text("保存")
+                    }
+                }
+            )
+        }
+
         FloatingActionButton(
             onClick = {
                 showDialog = true

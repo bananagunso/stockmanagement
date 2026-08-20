@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
+import com.example.stockmanagement.data.entity.AttributeEntity
 import com.example.stockmanagement.data.entity.CategoryAttributeEntity
 import com.example.stockmanagement.data.model.CategoryWithAttribute
 import kotlinx.coroutines.flow.Flow
@@ -15,7 +16,7 @@ interface CategoryAttributeDao {
     fun getAll(): Flow<List<CategoryAttributeEntity>>
 
     @Insert
-    suspend fun insert(categoryattribute: CategoryAttributeEntity)
+    suspend fun insert(categoryAttribute: CategoryAttributeEntity)
 
     @Query(
         """
@@ -35,5 +36,8 @@ interface CategoryAttributeDao {
     fun getAllWithAttribute(): Flow<List<CategoryWithAttribute>>
 
     @Update
-    suspend fun update(datatype: CategoryAttributeEntity)
+    suspend fun update(categoryAttribute: CategoryAttributeEntity)
+
+    @Query("SELECT * FROM categoryattribute WHERE categoryattribute_id = :id")
+    suspend fun getById(id: Int): CategoryAttributeEntity
 }
