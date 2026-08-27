@@ -28,6 +28,7 @@ fun CategoryListScreen(
     var showDialog by remember { mutableStateOf(false) }
     var editingCategory by remember { mutableStateOf<CategoryEntity?>(null) }
     var inputName by remember { mutableStateOf("") }
+    var showDeleteDialog by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -73,6 +74,13 @@ fun CategoryListScreen(
                 confirmButton = {
                     Button(
                         onClick = {
+                            showDeleteDialog = true
+                        }
+                    ) {
+                        Text("削除")
+                    }
+                    Button(
+                        onClick = {
                             viewModel.editCategory(
                                 category = editingCategory!!,
                                 newName = inputName
@@ -81,6 +89,46 @@ fun CategoryListScreen(
                         }
                     ) {
                         Text("保存")
+                    }
+                }
+            )
+        }
+
+        if (showDeleteDialog && editingCategory != null) {
+            AlertDialog(
+                onDismissRequest = {
+                    showDeleteDialog = false
+                },
+                title = {
+                    Text("カテゴリ削除")
+                },
+                text = {
+                    Text(
+                        "「${editingCategory!!.name}」を削除しますか？\n" +
+                                "このカテゴリに設定されている属性との関連も削除されます。"
+                    )
+                },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            viewModel.deleteCategory(
+                                editingCategory!!.categoryId
+                            )
+                            showDeleteDialog = false
+                            editingCategory = null
+                            inputName = ""
+                        }
+                    ) {
+                        Text("削除")
+                    }
+                },
+                dismissButton = {
+                    Button(
+                        onClick = {
+                            showDeleteDialog = false
+                        }
+                    ) {
+                        Text("キャンセル")
                     }
                 }
             )

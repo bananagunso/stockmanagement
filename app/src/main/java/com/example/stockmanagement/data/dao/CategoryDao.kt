@@ -10,7 +10,13 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface CategoryDao {
 
-    @Query("SELECT * FROM category ORDER BY category_id")
+    @Query(
+        """
+        SELECT * FROM category
+        WHERE deleted_at IS NULL
+        ORDER BY category_id
+        """
+    )
     fun getAll(): Flow<List<CategoryEntity>>
 
     @Insert
