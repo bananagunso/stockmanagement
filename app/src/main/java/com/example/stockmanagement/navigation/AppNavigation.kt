@@ -75,7 +75,9 @@ fun AppNavigation() {
             val context = LocalContext.current
             val database = DatabaseProvider.getDatabase(context)
             val factory = CategoryViewModelFactory(
-                database.categoryDao()
+                database,
+                database.categoryDao(),
+                database.categoryAttributeDao()
             )
             val viewModel: CategoryViewModel = viewModel(
                 factory = factory

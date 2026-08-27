@@ -2,7 +2,10 @@ package com.example.stockmanagement.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.room.withTransaction
+import com.example.stockmanagement.data.dao.CategoryAttributeDao
 import com.example.stockmanagement.data.dao.CategoryDao
+import com.example.stockmanagement.data.database.AppDatabase
 import com.example.stockmanagement.data.entity.CategoryEntity
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
@@ -10,7 +13,9 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.launch
 
 class CategoryViewModel(
-    private val categoryDao: CategoryDao
+    private val database: AppDatabase,
+    private val categoryDao: CategoryDao,
+    private val categoryAttributeDao: CategoryAttributeDao
 ) : ViewModel() {
 
     val categories: StateFlow<List<CategoryEntity>> =
@@ -40,6 +45,24 @@ class CategoryViewModel(
                     syncVersion = category.syncVersion + 1
                 )
             )
+        }
+    }
+
+    fun deleteCategory(categoryId: Int) {
+        viewModelScope.launch {
+            database.withTransaction {
+                val now = System.currentTimeMillis()
+
+                categoryAttributeDao.softDeleteByCategoryId(
+                    categoryId,
+                    now
+                )
+
+                categoryDao.softDelete(
+                    categoryId,
+                    now
+                )
+            }
         }
     }
 }

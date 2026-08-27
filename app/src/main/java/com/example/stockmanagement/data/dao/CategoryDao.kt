@@ -18,4 +18,21 @@ interface CategoryDao {
 
     @Update
     suspend fun update(category: CategoryEntity)
+
+    @Query(
+        """
+        UPDATE category
+        SET
+            deleted_at = :deletedAt,
+            updated_at = :deletedAt,
+            sync_version = sync_version + 1
+        WHERE category_id = :categoryId
+        AND deleted_at IS NULL
+        
+    """
+    )
+    suspend fun softDelete(
+        categoryId: Int,
+        deletedAt: Long = System.currentTimeMillis()
+    )
 }

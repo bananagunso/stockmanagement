@@ -12,7 +12,13 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface CategoryAttributeDao {
 
-    @Query("SELECT * FROM categoryattribute ORDER BY categoryattribute_id")
+    @Query(
+        """
+        SELECT * FROM categoryattribute
+        WHERE deleted_at IS NULL
+        ORDER BY categoryattribute_id
+    """
+    )
     fun getAll(): Flow<List<CategoryAttributeEntity>>
 
     @Insert
@@ -30,6 +36,9 @@ interface CategoryAttributeDao {
         ON categoryattribute.category_id = category.category_id
     INNER JOIN attribute
         ON categoryattribute.attribute_id = attribute.attribute_id
+    WHERE categoryattribute.deleted_at IS NULL
+      AND category.deleted_at IS NULL
+      AND attribute.deleted_at IS NULL
     ORDER BY categoryattribute.categoryattribute_id
     """
     )
@@ -40,4 +49,20 @@ interface CategoryAttributeDao {
 
     @Query("SELECT * FROM categoryattribute WHERE categoryattribute_id = :id")
     suspend fun getById(id: Int): CategoryAttributeEntity
+
+    @Query(
+        """
+    UPDATE categoryattribute
+    SET
+        deleted_at = :deletedAt,
+        updated_at = :deletedAt,
+        sync_version = sync_version + 1
+    WHERE category_id = :categoryId
+      AND deleted_at IS NULL
+"""
+    )
+    suspend fun softDeleteByCategoryId(
+        categoryId: Int,
+        deletedAt: Long = System.currentTimeMillis()
+    )
 }
