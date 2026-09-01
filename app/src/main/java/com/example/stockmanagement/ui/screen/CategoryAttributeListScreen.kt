@@ -27,7 +27,7 @@ import com.example.stockmanagement.data.entity.AttributeEntity
 import com.example.stockmanagement.data.entity.CategoryEntity
 import com.example.stockmanagement.data.model.CategoryWithAttribute
 import com.example.stockmanagement.viewmodel.CategoryAttributeViewModel
-
+import com.example.stockmanagement.ui.component.CategoryDropdown
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
@@ -213,59 +213,6 @@ fun CategoryAttributeAddDialog(
             }
         }
     )
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun CategoryDropdown(
-    categories: List<CategoryEntity>,
-    selected: CategoryEntity?,
-    onSelected: (CategoryEntity) -> Unit
-) {
-    var expanded by remember { mutableStateOf(false) }
-
-    ExposedDropdownMenuBox(
-        expanded = expanded,
-        onExpandedChange = {
-            expanded = !expanded
-        }
-    ) {
-        OutlinedTextField(
-            value = selected?.name ?: "",
-            onValueChange = {},
-            readOnly = true,
-            label = {
-                Text("カテゴリ")
-            },
-            trailingIcon = {
-                ExposedDropdownMenuDefaults.TrailingIcon(
-                    expanded = expanded
-                )
-            },
-            modifier = Modifier.menuAnchor(
-                ExposedDropdownMenuAnchorType.PrimaryNotEditable
-            )
-        )
-
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = {
-                expanded = false
-            }
-        ) {
-            categories.forEach { category ->
-                DropdownMenuItem(
-                    text = {
-                        Text(category.name)
-                    },
-                    onClick = {
-                        onSelected(category)
-                        expanded = false
-                    }
-                )
-            }
-        }
-    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

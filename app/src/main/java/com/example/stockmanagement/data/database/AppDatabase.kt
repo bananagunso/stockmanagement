@@ -10,6 +10,8 @@ import com.example.stockmanagement.data.dao.CategoryAttributeDao
 import com.example.stockmanagement.data.entity.CategoryAttributeEntity
 import com.example.stockmanagement.data.dao.DataTypeDao
 import com.example.stockmanagement.data.entity.DataTypeEntity
+import com.example.stockmanagement.data.dao.ItemDao
+import com.example.stockmanagement.data.entity.ItemEntity
 
 @Database(
     entities = [
@@ -17,8 +19,9 @@ import com.example.stockmanagement.data.entity.DataTypeEntity
         DataTypeEntity::class,
         AttributeEntity::class,
         CategoryAttributeEntity::class,
+        ItemEntity::class
     ],
-    version = 1
+    version = 2
 )
 
 abstract class AppDatabase : RoomDatabase() {
@@ -26,4 +29,5 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun dataTypeDao(): DataTypeDao
     abstract fun attributeDao(): AttributeDao
     abstract fun categoryAttributeDao(): CategoryAttributeDao
+    abstract fun itemDao(): ItemDao
 }

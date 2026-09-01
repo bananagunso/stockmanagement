@@ -1,6 +1,8 @@
 package com.example.stockmanagement.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
@@ -23,6 +25,8 @@ import com.example.stockmanagement.viewmodel.AttributeViewModel
 import com.example.stockmanagement.viewmodel.AttributeViewModelFactory
 import com.example.stockmanagement.viewmodel.CategoryAttributeViewModel
 import com.example.stockmanagement.viewmodel.CategoryAttributeViewModelFactory
+import com.example.stockmanagement.viewmodel.ItemViewModel
+import com.example.stockmanagement.viewmodel.ItemViewModelFactory
 
 @Composable
 fun AppNavigation() {
@@ -49,8 +53,32 @@ fun AppNavigation() {
         }
 
         composable("searchItem") {
-            SearchItemScreen()
+            val context = LocalContext.current
+            val database = DatabaseProvider.getDatabase(context)
+
+            val categoryViewModel: CategoryViewModel = viewModel(
+                factory = CategoryViewModelFactory(
+                    database,
+                    database.categoryDao(),
+                    database.categoryAttributeDao()
+                )
+            )
+
+            val itemViewModel: ItemViewModel = viewModel(
+                factory = ItemViewModelFactory(
+                    database,
+                    database.itemDao()
+                )
+            )
+
+            val categories by categoryViewModel.categories.collectAsState()
+
+            SearchItemScreen(
+                categories = categories,
+                viewModel = itemViewModel
+            )
         }
+
         composable("manageMaster") {
             ManageMasterScreen(
                 onCategoryListClick = {
