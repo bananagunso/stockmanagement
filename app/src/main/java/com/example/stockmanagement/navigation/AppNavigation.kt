@@ -10,7 +10,7 @@ import com.example.stockmanagement.data.database.DatabaseProvider
 import com.example.stockmanagement.ui.screen.HomeScreen
 import com.example.stockmanagement.ui.screen.ManageDataScreen
 import com.example.stockmanagement.ui.screen.ManageMasterScreen
-import com.example.stockmanagement.ui.screen.SearchScreen
+import com.example.stockmanagement.ui.screen.SearchItemScreen
 import com.example.stockmanagement.ui.screen.CategoryListScreen
 import com.example.stockmanagement.viewmodel.CategoryViewModel
 import com.example.stockmanagement.viewmodel.CategoryViewModelFactory
@@ -36,8 +36,8 @@ fun AppNavigation() {
 
         composable("home") {
             HomeScreen(
-                onSearchClick = {
-                    navController.navigate("search")
+                onSearchItemClick = {
+                    navController.navigate("searchItem")
                 },
                 onManageMasterClick = {
                     navController.navigate("manageMaster")
@@ -48,8 +48,8 @@ fun AppNavigation() {
             )
         }
 
-        composable("search") {
-            SearchScreen()
+        composable("searchItem") {
+            SearchItemScreen()
         }
         composable("manageMaster") {
             ManageMasterScreen(

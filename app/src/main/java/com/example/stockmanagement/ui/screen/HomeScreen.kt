@@ -8,7 +8,7 @@ import androidx.compose.ui.Modifier
 
 @Composable
 fun HomeScreen(
-    onSearchClick: () -> Unit,
+    onSearchItemClick: () -> Unit,
     onManageMasterClick: () -> Unit,
     onManageDataClick: () -> Unit,
 ) {
@@ -16,7 +16,7 @@ fun HomeScreen(
         modifier = Modifier
     ) {
         Button(
-            onClick = onSearchClick
+            onClick = onSearchItemClick
         ) {
             Text("Item検索")
         }
