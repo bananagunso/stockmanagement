@@ -57,6 +57,8 @@ fun SearchItemScreen(
                         onClick = {
                             editingItem = item
                             inputName = item.itemName
+                            selectedCategory =
+                                categories.find { it.categoryId == item.categoryId }
                         }
                     ) {
                         Text("編集")
@@ -74,26 +76,41 @@ fun SearchItemScreen(
                     Text("item編集")
                 },
                 text = {
-                    OutlinedTextField(
-                        value = inputName,
-                        onValueChange = {
-                            inputName = it
-                        },
-                        label = {
-                            Text("item")
-                        }
-                    )
+                    Column {
+                        CategoryDropdown(
+                            categories = categories,
+                            selected = selectedCategory,
+                            onSelected = {
+                                selectedCategory = it
+                            }
+                        )
+                        OutlinedTextField(
+                            value = inputName,
+                            onValueChange = {
+                                inputName = it
+                            },
+                            label = {
+                                Text("item")
+                            }
+                        )
+                    }
                 },
                 confirmButton = {
                     Button(
                         onClick = {
+                            val category = selectedCategory
+
                             editingItem?.let { item ->
-                                viewModel.editItem(
-                                    itemId = item.itemId,
-                                    newName = inputName
-                                )
+                                if (category != null && inputName.isNotBlank()) {
+                                    viewModel.editItem(
+                                        itemId = item.itemId,
+                                        newName = inputName,
+                                        newCategoryId = category.categoryId
+                                    )
+
+                                    editingItem = null
+                                }
                             }
-                            editingItem = null
                         }
                     ) {
                         Text("保存")

@@ -42,6 +42,7 @@ interface ItemDao {
         item.item_id AS itemId,
         item.name AS itemName,
         item.stock AS stock,
+        category.category_id AS categoryId,
         category.name AS categoryName
     FROM item
     INNER JOIN category

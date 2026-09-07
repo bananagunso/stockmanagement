@@ -45,13 +45,14 @@ class ItemViewModel(
         }
     }
 
-    fun editItem(itemId: Int, newName: String) {
+    fun editItem(itemId: Int, newName: String, newCategoryId: Int) {
         viewModelScope.launch {
             val item = itemDao.getById(itemId)
 
             itemDao.update(
                 item.copy(
                     name = newName,
+                    categoryId = newCategoryId,
                     updatedAt = System.currentTimeMillis(),
                     syncVersion = item.syncVersion + 1
                 )
