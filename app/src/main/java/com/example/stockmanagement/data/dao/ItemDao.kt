@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
 import com.example.stockmanagement.data.entity.ItemEntity
+import com.example.stockmanagement.data.model.ItemWithCategory
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -35,4 +36,20 @@ interface ItemDao {
         itemId: Int,
         deletedAt: Long = System.currentTimeMillis()
     )
+
+    @Query("""
+    SELECT
+        item.item_id AS itemId,
+        item.name AS itemName,
+        item.stock AS stock,
+        category.name AS categoryName
+    FROM item
+    INNER JOIN category
+        ON item.category_id = category.category_id
+    ORDER BY item.item_id
+""")
+    fun getAllWithCategory(): Flow<List<ItemWithCategory>>
+
+    @Query("SELECT * FROM item WHERE item_id = :id")
+    suspend fun getById(id: Int): ItemEntity
 }

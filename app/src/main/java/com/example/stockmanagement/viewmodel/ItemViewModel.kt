@@ -6,6 +6,7 @@ import androidx.room.withTransaction
 import com.example.stockmanagement.data.dao.ItemDao
 import com.example.stockmanagement.data.database.AppDatabase
 import com.example.stockmanagement.data.entity.ItemEntity
+import com.example.stockmanagement.data.model.ItemWithCategory
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.SharingStarted
@@ -24,6 +25,14 @@ class ItemViewModel(
                 initialValue = emptyList()
             )
 
+    val itemWithCategory: StateFlow<List<ItemWithCategory>> =
+        itemDao.getAllWithCategory()
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = emptyList()
+            )
+
     fun addItem(name: String, stock: Int, categoryId: Int) {
         viewModelScope.launch {
             itemDao.insert(
@@ -36,8 +45,10 @@ class ItemViewModel(
         }
     }
 
-    fun editItem(item: ItemEntity, newName: String) {
+    fun editItem(itemId: Int, newName: String) {
         viewModelScope.launch {
+            val item = itemDao.getById(itemId)
+
             itemDao.update(
                 item.copy(
                     name = newName,

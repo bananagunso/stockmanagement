@@ -74,8 +74,8 @@ fun AppNavigation() {
             val categories by categoryViewModel.categories.collectAsState()
 
             SearchItemScreen(
+                viewModel = itemViewModel,
                 categories = categories,
-                viewModel = itemViewModel
             )
         }
 

@@ -2,11 +2,14 @@ package com.example.stockmanagement.ui.screen
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -17,18 +20,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.example.stockmanagement.data.entity.CategoryEntity
-import com.example.stockmanagement.data.entity.ItemEntity
+import com.example.stockmanagement.data.model.ItemWithCategory
 import com.example.stockmanagement.viewmodel.ItemViewModel
 import com.example.stockmanagement.ui.component.CategoryDropdown
 
 @Composable
+@OptIn(ExperimentalMaterial3Api::class)
 fun SearchItemScreen(
     viewModel: ItemViewModel,
     categories: List<CategoryEntity>,
 
     ) {
-    val items by viewModel.items.collectAsState()
-    var editingItem by remember { mutableStateOf<ItemEntity?>(null) }
+    val itemWithCategory by viewModel.itemWithCategory.collectAsState()
+    var editingItem by remember { mutableStateOf<ItemWithCategory?>(null) }
     var showDialog by remember { mutableStateOf(false) }
     var inputName by remember { mutableStateOf("") }
     var inputStock by remember { mutableStateOf("") }
@@ -41,21 +45,61 @@ fun SearchItemScreen(
     ) {
         Text("Item検索画面")
         LazyColumn {
-            items(items) { item ->
-                Row {
+            items(itemWithCategory) { item ->
+                Row(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
                     Text(
-                        text = "${item.name} 在庫${item.stock}"
+                        text = "${item.categoryName} ${item.itemName} 在庫${item.stock}",
+                        modifier = Modifier.weight(1f)
                     )
                     Button(
                         onClick = {
                             editingItem = item
-                            inputName = item.name
+                            inputName = item.itemName
                         }
                     ) {
                         Text("編集")
                     }
                 }
             }
+        }
+
+        if (editingItem != null) {
+            AlertDialog(
+                onDismissRequest = {
+                    editingItem = null
+                },
+                title = {
+                    Text("item編集")
+                },
+                text = {
+                    OutlinedTextField(
+                        value = inputName,
+                        onValueChange = {
+                            inputName = it
+                        },
+                        label = {
+                            Text("item")
+                        }
+                    )
+                },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            editingItem?.let { item ->
+                                viewModel.editItem(
+                                    itemId = item.itemId,
+                                    newName = inputName
+                                )
+                            }
+                            editingItem = null
+                        }
+                    ) {
+                        Text("保存")
+                    }
+                }
+            )
         }
 
         FloatingActionButton(
