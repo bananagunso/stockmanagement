@@ -1,17 +1,13 @@
 package com.example.stockmanagement.ui.screen
 
+import AttributeDropdown
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuAnchorType
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -213,57 +209,4 @@ fun CategoryAttributeAddDialog(
             }
         }
     )
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun AttributeDropdown(
-    attributes: List<AttributeEntity>,
-    selected: AttributeEntity?,
-    onSelected: (AttributeEntity) -> Unit
-) {
-    var expanded by remember { mutableStateOf(false) }
-
-    ExposedDropdownMenuBox(
-        expanded = expanded,
-        onExpandedChange = {
-            expanded = !expanded
-        }
-    ) {
-        OutlinedTextField(
-            value = selected?.name ?: "",
-            onValueChange = {},
-            readOnly = true,
-            label = {
-                Text("属性")
-            },
-            trailingIcon = {
-                ExposedDropdownMenuDefaults.TrailingIcon(
-                    expanded = expanded
-                )
-            },
-            modifier = Modifier.menuAnchor(
-                ExposedDropdownMenuAnchorType.PrimaryNotEditable
-            )
-        )
-
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = {
-                expanded = false
-            }
-        ) {
-            attributes.forEach { attribute ->
-                DropdownMenuItem(
-                    text = {
-                        Text(attribute.name)
-                    },
-                    onClick = {
-                        onSelected(attribute)
-                        expanded = false
-                    }
-                )
-            }
-        }
-    }
 }
