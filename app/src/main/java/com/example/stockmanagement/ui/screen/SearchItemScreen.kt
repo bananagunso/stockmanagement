@@ -1,18 +1,23 @@
 package com.example.stockmanagement.ui.screen
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.example.stockmanagement.data.entity.CategoryEntity
+import com.example.stockmanagement.data.entity.ItemEntity
 import com.example.stockmanagement.viewmodel.ItemViewModel
 import com.example.stockmanagement.ui.component.CategoryDropdown
 
@@ -22,6 +27,8 @@ fun SearchItemScreen(
     categories: List<CategoryEntity>,
 
     ) {
+    val items by viewModel.items.collectAsState()
+    var editingItem by remember { mutableStateOf<ItemEntity?>(null) }
     var showDialog by remember { mutableStateOf(false) }
     var inputName by remember { mutableStateOf("") }
     var inputStock by remember { mutableStateOf("") }
@@ -33,6 +40,23 @@ fun SearchItemScreen(
         modifier = Modifier
     ) {
         Text("Item検索画面")
+        LazyColumn {
+            items(items) { item ->
+                Row {
+                    Text(
+                        text = "${item.name} 在庫${item.stock}"
+                    )
+                    Button(
+                        onClick = {
+                            editingItem = item
+                            inputName = item.name
+                        }
+                    ) {
+                        Text("編集")
+                    }
+                }
+            }
+        }
 
         FloatingActionButton(
             onClick = {

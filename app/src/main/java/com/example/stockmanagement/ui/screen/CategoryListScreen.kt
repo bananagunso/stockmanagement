@@ -25,8 +25,8 @@ fun CategoryListScreen(
     viewModel: CategoryViewModel
 ) {
     val categories by viewModel.categories.collectAsState()
-    var showDialog by remember { mutableStateOf(false) }
     var editingCategory by remember { mutableStateOf<CategoryEntity?>(null) }
+    var showDialog by remember { mutableStateOf(false) }
     var inputName by remember { mutableStateOf("") }
     var showDeleteDialog by remember { mutableStateOf(false) }
 
