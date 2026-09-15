@@ -1,25 +1,20 @@
 package com.example.stockmanagement.ui.screen
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import com.example.stockmanagement.viewmodel.DataTypeViewModel
-import androidx.compose.runtime.setValue
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.stockmanagement.data.entity.DataTypeEntity
+import com.example.stockmanagement.viewmodel.DataTypeViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DataTypeListScreen(
     viewModel: DataTypeViewModel
@@ -28,24 +23,51 @@ fun DataTypeListScreen(
     var showDialog by remember { mutableStateOf(false) }
     var editingDataType by remember { mutableStateOf<DataTypeEntity?>(null) }
     var inputName by remember { mutableStateOf("") }
+    var showDeleteDialog by remember { mutableStateOf(false) }
 
-    Column(
-        modifier = Modifier
-    ) {
-        Text("データタイプ一覧")
-        LazyColumn {
-            items(dataTypes) { dataType ->
-                Row {
-                    Text(
-                        text = dataType.name
-                    )
-                    Button(
-                        onClick = {
-                            editingDataType = dataType
-                            inputName = dataType.name
-                        }
+    Scaffold(
+        topBar = { TopAppBar(title = { Text("データタイプ管理") }) },
+        floatingActionButton = {
+            FloatingActionButton(onClick = { showDialog = true }) {
+                Text("+", fontSize = 24.sp)
+            }
+        }
+    ) { padding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding),
+            contentAlignment = Alignment.TopCenter
+        ) {
+            LazyColumn(
+                modifier = Modifier
+                    .widthIn(max = 600.dp)
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(dataTypes) { dataType ->
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
                     ) {
-                        Text("編集")
+                        Row(
+                            modifier = Modifier
+                                .padding(16.dp)
+                                .fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(text = dataType.name, style = MaterialTheme.typography.bodyLarge)
+                            Button(
+                                onClick = {
+                                    editingDataType = dataType
+                                    inputName = dataType.name
+                                }
+                            ) {
+                                Text("編集")
+                            }
+                        }
                     }
                 }
             }
@@ -53,66 +75,76 @@ fun DataTypeListScreen(
 
         if (editingDataType != null) {
             AlertDialog(
-                onDismissRequest = {
-                    editingDataType = null
-                },
-                title = {
-                    Text("カテゴリ編集")
-                },
+                onDismissRequest = { editingDataType = null },
+                title = { Text("データタイプ", softWrap = false) },
+                modifier = Modifier.widthIn(min = 360.dp),
                 text = {
-                    OutlinedTextField(
-                        value = inputName,
-                        onValueChange = {
-                            inputName = it
-                        },
-                        label = {
-                            Text("カテゴリ名")
-                        }
-                    )
+                    Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                        OutlinedTextField(
+                            value = inputName,
+                            onValueChange = { inputName = it },
+                            label = { Text("名前") },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
                 },
                 confirmButton = {
-                    Button(
-                        onClick = {
-                            viewModel.editDataType(
-                                dataType = editingDataType!!,
-                                newName = inputName
-                            )
-                            editingDataType = null
-                        }
-                    ) {
-                        Text("保存")
+                    Row {
+                        TextButton(
+                            onClick = { showDeleteDialog = true },
+                            colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
+                        ) { Text("削除") }
+                        Button(
+                            onClick = {
+                                viewModel.editDataType(editingDataType!!, inputName)
+                                editingDataType = null
+                            }
+                        ) { Text("保存") }
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { editingDataType = null }) {
+                        Text("キャンセル")
                     }
                 }
             )
         }
 
-
-        FloatingActionButton(
-            onClick = {
-                showDialog = true
-            }
-        ) {
-            Text("+")
+        if (showDeleteDialog && editingDataType != null) {
+            AlertDialog(
+                onDismissRequest = { showDeleteDialog = false },
+                title = { Text("データタイプ削除", maxLines = 1) },
+                text = { Text("「${editingDataType!!.name}」を削除しますか？") },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            viewModel.deleteDataType(editingDataType!!.dataTypeId)
+                            showDeleteDialog = false
+                            editingDataType = null
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                    ) { Text("削除") }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showDeleteDialog = false }) { Text("キャンセル") }
+                }
+            )
         }
 
         if (showDialog) {
             AlertDialog(
-                onDismissRequest = {
-                    showDialog = false
-                },
-                title = {
-                    Text("データタイプ追加")
-                },
+                onDismissRequest = { showDialog = false },
+                title = { Text("データタイプ", softWrap = false) },
+                modifier = Modifier.widthIn(min = 360.dp),
                 text = {
-                    TextField(
-                        value = inputName,
-                        onValueChange = {
-                            inputName = it
-                        },
-                        label = {
-                            Text("データタイプ")
-                        }
-                    )
+                    Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                        OutlinedTextField(
+                            value = inputName,
+                            onValueChange = { inputName = it },
+                            label = { Text("名前") },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
                 },
                 confirmButton = {
                     Button(
@@ -123,9 +155,10 @@ fun DataTypeListScreen(
                                 showDialog = false
                             }
                         }
-                    ) {
-                        Text("保存")
-                    }
+                    ) { Text("追加") }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showDialog = false }) { Text("キャンセル") }
                 }
             )
         }

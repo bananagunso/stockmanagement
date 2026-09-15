@@ -8,46 +8,41 @@ import androidx.room.PrimaryKey
 import java.util.UUID
 
 @Entity(
-    tableName = "categoryattribute",
+    tableName = "item_attribute_value",
     foreignKeys = [
         ForeignKey(
-            entity = CategoryEntity::class,
-            parentColumns = ["category_id"],
-            childColumns = ["category_id"],
-            onDelete = ForeignKey.RESTRICT
+            entity = ItemEntity::class,
+            parentColumns = ["item_id"],
+            childColumns = ["item_id"],
+            onDelete = ForeignKey.CASCADE
         ),
         ForeignKey(
-            entity = AttributeEntity::class,
-            parentColumns = ["attribute_id"],
-            childColumns = ["attribute_id"],
+            entity = CategoryAttributeEntity::class,
+            parentColumns = ["categoryattribute_id"],
+            childColumns = ["categoryattribute_id"],
             onDelete = ForeignKey.RESTRICT
         )
     ],
     indices = [
         Index(value = ["uuid"], unique = true),
-        Index("deleted_at"),
-        Index("category_id"),
-        Index("attribute_id"),
-        Index(
-            value = ["category_id", "attribute_id", "unit"],
-            unique = true
-        )
+        Index("item_id"),
+        Index("categoryattribute_id"),
+        Index(value = ["item_id", "categoryattribute_id"], unique = true)
     ]
 )
-
-data class CategoryAttributeEntity(
+data class ItemAttributeValueEntity(
     @PrimaryKey(autoGenerate = true)
+    @ColumnInfo(name = "item_attribute_value_id")
+    val itemAttributeValueId: Int = 0,
+
+    @ColumnInfo(name = "item_id")
+    val itemId: Int,
+
     @ColumnInfo(name = "categoryattribute_id")
-    val categoryattributeId: Int = 0,
+    val categoryattributeId: Int,
 
-    @ColumnInfo(name = "category_id")
-    val categoryId: Int = 0,
-
-    @ColumnInfo(name = "attribute_id")
-    val attributeId: Int = 0,
-
-    @ColumnInfo(name = "unit")
-    val unit: String? = null,
+    @ColumnInfo(name = "value")
+    val value: String,
 
     @ColumnInfo(name = "created_at")
     val createdAt: Long = System.currentTimeMillis(),

@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface DataTypeDao {
 
-    @Query("SELECT * FROM data_type ORDER BY data_type_id ")
+    @Query("SELECT * FROM data_type WHERE deleted_at IS NULL ORDER BY data_type_id ")
     fun getAll(): Flow<List<DataTypeEntity>>
 
     @Insert
@@ -18,4 +18,23 @@ interface DataTypeDao {
 
     @Update
     suspend fun update(dataType: DataTypeEntity)
+
+    @Query("SELECT * FROM data_type WHERE data_type_id = :id")
+    suspend fun getById(id: Int): DataTypeEntity
+
+    @Query(
+        """
+        UPDATE data_type
+        SET
+            deleted_at = :deletedAt,
+            updated_at = :deletedAt,
+            sync_version = sync_version + 1
+        WHERE data_type_id = :dataTypeId
+        AND deleted_at IS NULL
+    """
+    )
+    suspend fun softDelete(
+        dataTypeId: Int,
+        deletedAt: Long = System.currentTimeMillis()
+    )
 }

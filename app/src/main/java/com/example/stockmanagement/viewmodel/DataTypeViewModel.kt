@@ -42,4 +42,10 @@ class DataTypeViewModel(
             )
         }
     }
+
+    fun deleteDataType(dataTypeId: Int) {
+        viewModelScope.launch {
+            dataTypeDao.softDelete(dataTypeId)
+        }
+    }
 }

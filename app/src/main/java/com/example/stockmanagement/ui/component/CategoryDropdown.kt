@@ -22,7 +22,8 @@ import kotlin.collections.forEach
 fun CategoryDropdown(
     categories: List<CategoryEntity>,
     selected: CategoryEntity?,
-    onSelected: (CategoryEntity) -> Unit
+    onSelected: (CategoryEntity?) -> Unit,
+    showUnselected: Boolean = false
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -33,7 +34,7 @@ fun CategoryDropdown(
         }
     ) {
         OutlinedTextField(
-            value = selected?.name ?: "",
+            value = selected?.name ?: if (showUnselected) "未選択" else "",
             onValueChange = {},
             readOnly = true,
             label = {
@@ -55,6 +56,17 @@ fun CategoryDropdown(
                 expanded = false
             }
         ) {
+            if (showUnselected) {
+                DropdownMenuItem(
+                    text = {
+                        Text("未選択")
+                    },
+                    onClick = {
+                        onSelected(null)
+                        expanded = false
+                    }
+                )
+            }
             categories.forEach { category ->
                 DropdownMenuItem(
                     text = {

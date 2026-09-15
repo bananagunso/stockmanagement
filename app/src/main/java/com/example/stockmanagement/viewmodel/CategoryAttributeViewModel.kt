@@ -20,13 +20,25 @@ class CategoryAttributeViewModel(
 
     fun addCategoryAttribute(categoryId: Int, attributeId: Int, unit: String?) {
         viewModelScope.launch {
-            categoryAttributeDao.insert(
-                CategoryAttributeEntity(
-                    categoryId = categoryId,
-                    attributeId = attributeId,
-                    unit = unit
+            val existing = categoryAttributeDao.getByCategoryAttributeAndUnit(categoryId, attributeId, unit)
+            if (existing != null) {
+                // すでに存在する場合（論理削除されている場合を含む）は、有効化する
+                categoryAttributeDao.update(
+                    existing.copy(
+                        deletedAt = null,
+                        updatedAt = System.currentTimeMillis(),
+                        syncVersion = existing.syncVersion + 1
+                    )
                 )
-            )
+            } else {
+                categoryAttributeDao.insert(
+                    CategoryAttributeEntity(
+                        categoryId = categoryId,
+                        attributeId = attributeId,
+                        unit = unit
+                    )
+                )
+            }
         }
     }
 
@@ -52,16 +64,29 @@ class CategoryAttributeViewModel(
             emptyList()
         )
 
-    fun editCategoryAttribute(categoryAttribute: CategoryWithAttribute, newUnit: String ) {
+    fun editCategoryAttribute(
+        categoryAttribute: CategoryWithAttribute,
+        newCategoryId: Int,
+        newAttributeId: Int,
+        newUnit: String
+    ) {
         viewModelScope.launch {
             val entity = categoryAttributeDao.getById(categoryAttribute.categoryAttributeId)
             categoryAttributeDao.update(
                 entity.copy(
+                    categoryId = newCategoryId,
+                    attributeId = newAttributeId,
                     unit = newUnit,
                     updatedAt = System.currentTimeMillis(),
                     syncVersion = entity.syncVersion + 1
                 )
             )
+        }
+    }
+
+    fun deleteCategoryAttribute(categoryAttributeId: Int) {
+        viewModelScope.launch {
+            categoryAttributeDao.softDelete(categoryAttributeId)
         }
     }
 }

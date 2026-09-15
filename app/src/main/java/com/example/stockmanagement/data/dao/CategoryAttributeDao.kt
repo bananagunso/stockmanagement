@@ -50,6 +50,25 @@ interface CategoryAttributeDao {
     @Query("SELECT * FROM categoryattribute WHERE categoryattribute_id = :id")
     suspend fun getById(id: Int): CategoryAttributeEntity
 
+    @Query("SELECT * FROM categoryattribute WHERE category_id = :categoryId AND attribute_id = :attributeId AND (unit = :unit OR (unit IS NULL AND :unit IS NULL)) LIMIT 1")
+    suspend fun getByCategoryAttributeAndUnit(categoryId: Int, attributeId: Int, unit: String?): CategoryAttributeEntity?
+
+    @Query(
+        """
+        UPDATE categoryattribute
+        SET
+            deleted_at = :deletedAt,
+            updated_at = :deletedAt,
+            sync_version = sync_version + 1
+        WHERE categoryattribute_id = :id
+        AND deleted_at IS NULL
+    """
+    )
+    suspend fun softDelete(
+        id: Int,
+        deletedAt: Long = System.currentTimeMillis()
+    )
+
     @Query(
         """
     UPDATE categoryattribute
@@ -63,6 +82,22 @@ interface CategoryAttributeDao {
     )
     suspend fun softDeleteByCategoryId(
         categoryId: Int,
+        deletedAt: Long = System.currentTimeMillis()
+    )
+
+    @Query(
+        """
+    UPDATE categoryattribute
+    SET
+        deleted_at = :deletedAt,
+        updated_at = :deletedAt,
+        sync_version = sync_version + 1
+    WHERE attribute_id = :attributeId
+      AND deleted_at IS NULL
+"""
+    )
+    suspend fun softDeleteByAttributeId(
+        attributeId: Int,
         deletedAt: Long = System.currentTimeMillis()
     )
 }

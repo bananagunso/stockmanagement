@@ -2,8 +2,11 @@ package com.example.stockmanagement.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.room.withTransaction
 import com.example.stockmanagement.data.dao.AttributeDao
+import com.example.stockmanagement.data.dao.CategoryAttributeDao
 import com.example.stockmanagement.data.dao.DataTypeDao
+import com.example.stockmanagement.data.database.AppDatabase
 import com.example.stockmanagement.data.entity.AttributeEntity
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
@@ -11,8 +14,10 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.launch
 import com.example.stockmanagement.data.model.AttributeWithDataType
 class AttributeViewModel(
+    private val database: AppDatabase,
     private val attributeDao: AttributeDao,
-    dataTypeDao: DataTypeDao
+    dataTypeDao: DataTypeDao,
+    private val categoryAttributeDao: CategoryAttributeDao
 ) : ViewModel() {
 
     fun addAttribute(name: String, dataTypeId: Int) {
@@ -52,6 +57,24 @@ class AttributeViewModel(
                     syncVersion = entity.syncVersion + 1
                 )
             )
+        }
+    }
+
+    fun deleteAttribute(attributeId: Int) {
+        viewModelScope.launch {
+            database.withTransaction {
+                val now = System.currentTimeMillis()
+
+                categoryAttributeDao.softDeleteByAttributeId(
+                    attributeId,
+                    now
+                )
+
+                attributeDao.softDelete(
+                    attributeId,
+                    now
+                )
+            }
         }
     }
 }

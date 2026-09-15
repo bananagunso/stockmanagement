@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface ItemDao {
 
-    @Query("SELECT * FROM item ORDER BY item_id ")
+    @Query("SELECT * FROM item WHERE deleted_at IS NULL ORDER BY item_id ")
     fun getAll(): Flow<List<ItemEntity>>
 
     @Insert
@@ -47,6 +47,7 @@ interface ItemDao {
     FROM item
     INNER JOIN category
         ON item.category_id = category.category_id
+    WHERE item.deleted_at IS NULL
     ORDER BY item.item_id
 """)
     fun getAllWithCategory(): Flow<List<ItemWithCategory>>

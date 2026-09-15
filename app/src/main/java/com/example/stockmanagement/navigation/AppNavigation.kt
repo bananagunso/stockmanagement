@@ -5,9 +5,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.stockmanagement.data.database.DatabaseProvider
 import com.example.stockmanagement.ui.screen.HomeScreen
 import com.example.stockmanagement.ui.screen.ManageDataScreen
@@ -27,6 +29,12 @@ import com.example.stockmanagement.viewmodel.CategoryAttributeViewModel
 import com.example.stockmanagement.viewmodel.CategoryAttributeViewModelFactory
 import com.example.stockmanagement.viewmodel.ItemViewModel
 import com.example.stockmanagement.viewmodel.ItemViewModelFactory
+import com.example.stockmanagement.ui.screen.ItemDetailScreen
+import com.example.stockmanagement.viewmodel.ItemAttributeValueViewModel
+import com.example.stockmanagement.viewmodel.ItemAttributeValueViewModelFactory
+
+import com.example.stockmanagement.viewmodel.DataManagementViewModel
+import com.example.stockmanagement.viewmodel.DataManagementViewModelFactory
 
 @Composable
 fun AppNavigation() {
@@ -76,6 +84,51 @@ fun AppNavigation() {
             SearchItemScreen(
                 viewModel = itemViewModel,
                 categories = categories,
+                onItemClick = { itemId ->
+                    navController.navigate("itemDetail/$itemId")
+                }
+            )
+        }
+
+        composable(
+            route = "itemDetail/{itemId}",
+            arguments = listOf(navArgument("itemId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val itemId = backStackEntry.arguments?.getInt("itemId") ?: return@composable
+            val context = LocalContext.current
+            val database = DatabaseProvider.getDatabase(context)
+
+            val itemViewModel: ItemViewModel = viewModel(
+                factory = ItemViewModelFactory(database, database.itemDao())
+            )
+            val attributeValueViewModel: ItemAttributeValueViewModel = viewModel(
+                factory = ItemAttributeValueViewModelFactory(
+                    database.itemAttributeValueDao(),
+                    database.categoryAttributeDao()
+                )
+            )
+            val categoryViewModel: CategoryViewModel = viewModel(
+                factory = CategoryViewModelFactory(
+                    database,
+                    database.categoryDao(),
+                    database.categoryAttributeDao()
+                )
+            )
+            val categoryAttributeViewModel: CategoryAttributeViewModel = viewModel(
+                factory = CategoryAttributeViewModelFactory(
+                    database.categoryAttributeDao(),
+                    database.categoryDao(),
+                    database.attributeDao()
+                )
+            )
+
+            ItemDetailScreen(
+                itemId = itemId,
+                itemViewModel = itemViewModel,
+                attributeValueViewModel = attributeValueViewModel,
+                categoryAttributeViewModel = categoryAttributeViewModel,
+                categories = categoryViewModel.categories.collectAsState().value,
+                onBack = { navController.popBackStack() }
             )
         }
 
@@ -97,7 +150,12 @@ fun AppNavigation() {
         }
 
         composable("manageData") {
-            ManageDataScreen()
+            val context = LocalContext.current
+            val database = DatabaseProvider.getDatabase(context)
+            val viewModel: DataManagementViewModel = viewModel(
+                factory = DataManagementViewModelFactory(database)
+            )
+            ManageDataScreen(viewModel)
         }
         composable("categoryList") {
             val context = LocalContext.current
@@ -117,8 +175,10 @@ fun AppNavigation() {
             val context = LocalContext.current
             val database = DatabaseProvider.getDatabase(context)
             val factory = AttributeViewModelFactory(
-                database.attributeDao(),
-                database.dataTypeDao(),
+                database = database,
+                attributeDao = database.attributeDao(),
+                dataTypeDao = database.dataTypeDao(),
+                categoryAttributeDao = database.categoryAttributeDao()
             )
             val viewModel: AttributeViewModel = viewModel(
                 factory = factory
