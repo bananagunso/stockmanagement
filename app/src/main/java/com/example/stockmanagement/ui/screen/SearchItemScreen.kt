@@ -40,28 +40,81 @@ fun SearchItemScreen(
         mutableStateOf<CategoryEntity?>(null)
     }
 
-    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
-        val isLandscape = maxWidth > maxHeight
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
+    ) {
+        BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+            val isLandscape = maxWidth > maxHeight
 
-        if (isLandscape) {
-            // 横画面：左に検索・追加、右にリスト
-            Row(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.spacedBy(24.dp)
-            ) {
-                // 左パネル (検索コントロール)
+            if (isLandscape) {
+                // 横画面：左に検索・追加、右にリスト
+                Row(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(24.dp)
+                ) {
+                    // 左パネル (検索コントロール)
+                    Column(
+                        modifier = Modifier
+                            .width(300.dp)
+                            .fillMaxHeight()
+                            .verticalScroll(rememberScrollState()),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        Text(
+                            "Item検索",
+                            style = MaterialTheme.typography.headlineSmall
+                        )
+
+                        OutlinedTextField(
+                            value = searchQuery,
+                            onValueChange = { viewModel.setSearchQuery(it) },
+                            label = { Text("型番・スペック検索") },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+
+                        Column {
+                            Text("カテゴリ絞り込み:", style = MaterialTheme.typography.bodySmall)
+                            CategoryDropdown(
+                                categories = categories,
+                                selected = categories.find { it.categoryId == selectedCategoryId },
+                                onSelected = { viewModel.setCategoryFilter(it?.categoryId) },
+                                showUnselected = true
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.weight(1f))
+
+                        Button(
+                            onClick = { showDialog = true },
+                            modifier = Modifier.fillMaxWidth(),
+                            contentPadding = PaddingValues(16.dp)
+                        ) {
+                            Text("+ 新規追加", fontSize = 18.sp)
+                        }
+                    }
+
+                    // 右パネル (リスト表示)
+                    Box(modifier = Modifier.weight(1f)) {
+                        ItemList(
+                            items = itemWithCategory,
+                            onItemClick = onItemClick
+                        )
+                    }
+                }
+            } else {
+                // 縦画面
                 Column(
                     modifier = Modifier
-                        .width(300.dp)
-                        .fillMaxHeight()
-                        .verticalScroll(rememberScrollState()),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                        .fillMaxSize()
+                        .padding(16.dp)
                 ) {
                     Text(
-                        "Item検索",
-                        style = MaterialTheme.typography.headlineSmall
+                        "Item検索画面",
+                        style = MaterialTheme.typography.headlineSmall,
+                        modifier = Modifier.padding(bottom = 16.dp)
                     )
 
                     OutlinedTextField(
@@ -71,94 +124,44 @@ fun SearchItemScreen(
                         modifier = Modifier.fillMaxWidth()
                     )
 
-                    Column {
-                        Text("カテゴリ絞り込み:", style = MaterialTheme.typography.bodySmall)
-                        CategoryDropdown(
-                            categories = categories,
-                            selected = categories.find { it.categoryId == selectedCategoryId },
-                            onSelected = { viewModel.setCategoryFilter(it?.categoryId) },
-                            showUnselected = true
-                        )
-                    }
+                    Spacer(modifier = Modifier.height(8.dp))
 
-                    Spacer(modifier = Modifier.weight(1f))
-
-                    Button(
-                        onClick = { showDialog = true },
-                        modifier = Modifier.fillMaxWidth(),
-                        contentPadding = PaddingValues(16.dp)
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text("+ 新規追加", fontSize = 18.sp)
+                        Text("カテゴリ: ", style = MaterialTheme.typography.bodyMedium)
+                        Box(modifier = Modifier.weight(1f)) {
+                            CategoryDropdown(
+                                categories = categories,
+                                selected = categories.find { it.categoryId == selectedCategoryId },
+                                onSelected = { viewModel.setCategoryFilter(it?.categoryId) },
+                                showUnselected = true
+                            )
+                        }
                     }
-                }
 
-                // 右パネル (リスト表示)
-                Box(modifier = Modifier.weight(1f)) {
-                    ItemList(
-                        items = itemWithCategory,
-                        onItemClick = onItemClick
-                    )
-                }
-            }
-        } else {
-            // 縦画面 (従来通り)
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp)
-            ) {
-                Text(
-                    "Item検索画面",
-                    style = MaterialTheme.typography.headlineSmall,
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
+                    Spacer(modifier = Modifier.height(16.dp))
 
-                OutlinedTextField(
-                    value = searchQuery,
-                    onValueChange = { viewModel.setSearchQuery(it) },
-                    label = { Text("型番・スペック検索") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("カテゴリ: ", style = MaterialTheme.typography.bodyMedium)
                     Box(modifier = Modifier.weight(1f)) {
-                        CategoryDropdown(
-                            categories = categories,
-                            selected = categories.find { it.categoryId == selectedCategoryId },
-                            onSelected = { viewModel.setCategoryFilter(it?.categoryId) },
-                            showUnselected = true
+                        ItemList(
+                            items = itemWithCategory,
+                            onItemClick = onItemClick
                         )
                     }
-                }
 
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Box(modifier = Modifier.weight(1f)) {
-                    ItemList(
-                        items = itemWithCategory,
-                        onItemClick = onItemClick
-                    )
-                }
-
-                FloatingActionButton(
-                    onClick = { showDialog = true },
-                    modifier = Modifier
-                        .align(Alignment.End)
-                        .padding(top = 16.dp)
-                ) {
-                    Text("+", fontSize = 24.sp)
+                    FloatingActionButton(
+                        onClick = { showDialog = true },
+                        modifier = Modifier
+                            .align(Alignment.End)
+                            .padding(top = 16.dp)
+                    ) {
+                        Text("+", fontSize = 24.sp)
+                    }
                 }
             }
         }
     }
-
-    // ... (Dialog implementation)
 
     if (showDialog) {
         AlertDialog(

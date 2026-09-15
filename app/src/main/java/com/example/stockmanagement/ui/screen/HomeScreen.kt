@@ -17,50 +17,55 @@ fun HomeScreen(
     onManageMasterClick: () -> Unit,
     onManageDataClick: () -> Unit,
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-            .verticalScroll(rememberScrollState()),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
     ) {
-        Text(
-            text = "電子部品在庫管理",
-            style = MaterialTheme.typography.headlineMedium,
-            modifier = Modifier.padding(bottom = 32.dp),
-            textAlign = TextAlign.Center
-        )
-
-        FlowRow(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            maxItemsInEachRow = 2
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
-            val menuItems = listOf(
-                "Item検索" to onSearchItemClick,
-                "マスタ管理" to onManageMasterClick,
-                "データ管理" to onManageDataClick
+            Text(
+                text = "電子部品在庫管理",
+                style = MaterialTheme.typography.headlineMedium,
+                modifier = Modifier.padding(bottom = 32.dp),
+                textAlign = TextAlign.Center
             )
 
-            menuItems.forEach { (label, onClick) ->
-                Card(
-                    onClick = onClick,
-                    modifier = Modifier
-                        .widthIn(min = 160.dp, max = 280.dp)
-                        .height(120.dp),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-                ) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
+            FlowRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                maxItemsInEachRow = 2
+            ) {
+                val menuItems = listOf(
+                    "Item検索" to onSearchItemClick,
+                    "マスタ管理" to onManageMasterClick,
+                    "データ管理" to onManageDataClick
+                )
+
+                menuItems.forEach { (label, onClick) ->
+                    Card(
+                        onClick = onClick,
+                        modifier = Modifier
+                            .widthIn(min = 160.dp, max = 280.dp)
+                            .height(120.dp),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                     ) {
-                        Text(
-                            text = label,
-                            style = MaterialTheme.typography.titleMedium,
-                            textAlign = TextAlign.Center
-                        )
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = label,
+                                style = MaterialTheme.typography.titleMedium,
+                                textAlign = TextAlign.Center
+                            )
+                        }
                     }
                 }
             }
