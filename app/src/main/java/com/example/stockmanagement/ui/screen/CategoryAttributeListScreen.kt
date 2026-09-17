@@ -10,6 +10,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -36,65 +37,70 @@ fun CategoryAttributeListScreen(
     var showDeleteDialog by remember { mutableStateOf(false) }
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("紐付け管理 (カテゴリ・属性)") }) },
+        topBar = { CenterAlignedTopAppBar(title = { Text("紐付け管理") }) },
         floatingActionButton = {
             FloatingActionButton(onClick = { showDialog = true }) {
                 Text("+", fontSize = 24.sp)
             }
         }
     ) { padding ->
-        Box(
+        Surface(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding),
-            contentAlignment = Alignment.TopCenter
+            color = MaterialTheme.colorScheme.background
         ) {
-            LazyColumn(
-                modifier = Modifier
-                    .widthIn(max = 600.dp)
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.TopCenter
             ) {
-                items(categoryAttributes) { categoryAttribute ->
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .padding(16.dp)
-                                .fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween
+                LazyColumn(
+                    modifier = Modifier
+                        .widthIn(max = 600.dp)
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(categoryAttributes) { categoryAttribute ->
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
                         ) {
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = categoryAttribute.categoryName,
-                                    style = MaterialTheme.typography.labelMedium,
-                                    color = MaterialTheme.colorScheme.primary
-                                )
-                                Text(
-                                    text = categoryAttribute.attributeName,
-                                    style = MaterialTheme.typography.bodyLarge
-                                )
-                                if (!categoryAttribute.unit.isNullOrEmpty()) {
-                                    Text(
-                                        text = "単位: ${categoryAttribute.unit}",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.secondary
-                                    )
-                                }
-                            }
-                            Button(
-                                onClick = {
-                                    editingCategoryAttribute = categoryAttribute
-                                    inputUnit = categoryAttribute.unit ?: ""
-                                    selectedCategoryForEdit = categories.find { it.name == categoryAttribute.categoryName }
-                                    selectedAttributeForEdit = attributes.find { it.name == categoryAttribute.attributeName }
-                                }
+                            Row(
+                                modifier = Modifier
+                                    .padding(16.dp)
+                                    .fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                Text("編集")
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = categoryAttribute.categoryName,
+                                        style = MaterialTheme.typography.labelMedium,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                    Text(
+                                        text = categoryAttribute.attributeName,
+                                        style = MaterialTheme.typography.bodyLarge
+                                    )
+                                    if (!categoryAttribute.unit.isNullOrEmpty()) {
+                                        Text(
+                                            text = "単位: ${categoryAttribute.unit}",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.secondary
+                                        )
+                                    }
+                                }
+                                Button(
+                                    onClick = {
+                                        editingCategoryAttribute = categoryAttribute
+                                        inputUnit = categoryAttribute.unit ?: ""
+                                        selectedCategoryForEdit = categories.find { it.name == categoryAttribute.categoryName }
+                                        selectedAttributeForEdit = attributes.find { it.name == categoryAttribute.attributeName }
+                                    }
+                                ) {
+                                    Text("編集")
+                                }
                             }
                         }
                     }
@@ -111,7 +117,7 @@ fun CategoryAttributeListScreen(
                     shape = MaterialTheme.shapes.extraLarge,
                 ) {
                     Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                        // タイトルエリア（余白を詰める）
+                        // タイトルエリア
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -120,13 +126,15 @@ fun CategoryAttributeListScreen(
                             Text(
                                 text = "カテゴリ・属性紐付け",
                                 style = MaterialTheme.typography.headlineSmall,
-                                softWrap = false
+                                softWrap = false,
+                                modifier = Modifier.fillMaxWidth(),
+                                textAlign = TextAlign.Center
                             )
                         }
 
                         HorizontalDivider()
 
-                        // スクロールエリア（weightを使って画面内に収める）
+                        // スクロールエリア
                         val scrollState = rememberScrollState()
                         Column(
                             modifier = Modifier
@@ -156,7 +164,7 @@ fun CategoryAttributeListScreen(
 
                         HorizontalDivider()
 
-                        // ボタンエリア（余白を詰める）
+                        // ボタンエリア
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -260,7 +268,9 @@ fun CategoryAttributeAddDialog(
                     Text(
                         text = "カテゴリ・属性紐付け",
                         style = MaterialTheme.typography.headlineSmall,
-                        softWrap = false
+                        softWrap = false,
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Center
                     )
                 }
 

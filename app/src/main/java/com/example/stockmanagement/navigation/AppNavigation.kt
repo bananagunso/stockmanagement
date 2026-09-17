@@ -36,6 +36,10 @@ import com.example.stockmanagement.viewmodel.ItemAttributeValueViewModelFactory
 import com.example.stockmanagement.viewmodel.DataManagementViewModel
 import com.example.stockmanagement.viewmodel.DataManagementViewModelFactory
 
+import com.example.stockmanagement.ui.screen.DatabaseSelectionScreen
+import com.example.stockmanagement.viewmodel.DatabaseSettingsViewModel
+import com.example.stockmanagement.viewmodel.DatabaseSettingsViewModelFactory
+
 @Composable
 fun AppNavigation() {
 
@@ -55,8 +59,29 @@ fun AppNavigation() {
                     navController.navigate("manageMaster")
                 },
                 onManageDataClick = {
-                    navController.navigate("manageData")
+                    navController.navigate("manageDatabase")
                 },
+                onSwitchDatabaseClick = {
+                    navController.navigate("databaseSelection")
+                }
+            )
+        }
+
+        composable("databaseSelection") {
+            val context = LocalContext.current
+            val database = DatabaseProvider.getMasterDatabase(context)
+            val viewModel: DatabaseSettingsViewModel = viewModel(
+                factory = DatabaseSettingsViewModelFactory(database)
+            )
+            DatabaseSelectionScreen(
+                viewModel = viewModel,
+                onDatabaseSwitched = {
+                    // 全画面をリフレッシュするためにホームに戻す
+                    navController.navigate("home") {
+                        popUpTo("home") { inclusive = true }
+                    }
+                },
+                onBack = { navController.popBackStack() }
             )
         }
 
@@ -149,7 +174,7 @@ fun AppNavigation() {
             )
         }
 
-        composable("manageData") {
+        composable("manageDatabase") {
             val context = LocalContext.current
             val database = DatabaseProvider.getDatabase(context)
             val viewModel: DataManagementViewModel = viewModel(

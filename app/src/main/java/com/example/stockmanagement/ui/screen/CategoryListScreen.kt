@@ -27,7 +27,7 @@ fun CategoryListScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("カテゴリ管理") })
+            CenterAlignedTopAppBar(title = { Text("カテゴリ管理") })
         },
         floatingActionButton = {
             FloatingActionButton(onClick = { showDialog = true }) {
@@ -35,42 +35,47 @@ fun CategoryListScreen(
             }
         }
     ) { padding ->
-        Box(
+        Surface(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding),
-            contentAlignment = Alignment.TopCenter
+            color = MaterialTheme.colorScheme.background
         ) {
-            LazyColumn(
-                modifier = Modifier
-                    .widthIn(max = 600.dp)
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.TopCenter
             ) {
-                items(categories) { category ->
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .padding(16.dp)
-                                .fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween
+                LazyColumn(
+                    modifier = Modifier
+                        .widthIn(max = 600.dp)
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(categories) { category ->
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
                         ) {
-                            Text(
-                                text = category.name,
-                                style = MaterialTheme.typography.bodyLarge
-                            )
-                            Button(
-                                onClick = {
-                                    editingCategory = category
-                                    inputName = category.name
-                                }
+                            Row(
+                                modifier = Modifier
+                                    .padding(16.dp)
+                                    .fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                Text("編集")
+                                Text(
+                                    text = category.name,
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
+                                Button(
+                                    onClick = {
+                                        editingCategory = category
+                                        inputName = category.name
+                                    }
+                                ) {
+                                    Text("編集")
+                                }
                             }
                         }
                     }

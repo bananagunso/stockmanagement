@@ -73,92 +73,98 @@ fun ManageDataScreen(
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-            .verticalScroll(rememberScrollState()),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
     ) {
-        Text("データ管理", style = MaterialTheme.typography.headlineMedium)
-
-        // CSVセクション
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .statusBarsPadding()
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text("CSV管理 (実用・一括更新)", style = MaterialTheme.typography.titleMedium)
-                Text(
-                    "Excel等で編集可能な形式でデータをやり取りします。既存データは上書き更新されます。",
-                    style = MaterialTheme.typography.bodySmall
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-                Button(
-                    onClick = { csvExportLauncher.launch("inventory_list.csv") },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("在庫リストをCSVエクスポート")
-                }
-                Spacer(modifier = Modifier.height(8.dp))
-                OutlinedButton(
-                    onClick = { csvImportLauncher.launch(arrayOf("text/*", "application/octet-stream")) },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("CSVからインポート・一括更新")
+            Text("データベース管理", style = MaterialTheme.typography.headlineMedium)
+
+            // CSVセクション
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text("CSV管理 (実用・一括更新)", style = MaterialTheme.typography.titleMedium)
+                    Text(
+                        "Excel等で編集可能な形式でデータをやり取りします。既存データは上書き更新されます。",
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Button(
+                        onClick = { csvExportLauncher.launch("inventory_list.csv") },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("在庫リストをCSVエクスポート")
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    OutlinedButton(
+                        onClick = { csvImportLauncher.launch(arrayOf("text/*", "application/octet-stream")) },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("CSVからインポート・一括更新")
+                    }
                 }
             }
-        }
 
-        // DBバックアップセクション
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-        ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text("DB完全バックアップ", style = MaterialTheme.typography.titleMedium)
-                Text(
-                    "システム全体の完全なコピーを作成します。機種変更時などに使用してください。",
-                    style = MaterialTheme.typography.bodySmall
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-                Button(
-                    onClick = { dbExportLauncher.launch("stock_management_backup.db") },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("DBファイルをエクスポート")
+            // DBバックアップセクション
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text("DB個別バックアップ", style = MaterialTheme.typography.titleMedium)
+                    Text(
+                        "現在選択されているデータベースのコピーを作成します。他の管理対象データは含まれません。",
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Button(
+                        onClick = { dbExportLauncher.launch("stock_management_backup.db") },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("アクティブなDBをエクスポート")
+                    }
                 }
             }
-        }
 
-        // リストア（危険）セクション
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.1f))
-        ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text("完全リストア (危険)", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.error)
-                Text(
-                    "注意：現在のすべてのデータが消去され、バックアップファイルの内容に置き換わります。",
-                    style = MaterialTheme.typography.bodySmall
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-                Button(
-                    onClick = { dbRestoreLauncher.launch(arrayOf("*/*")) },
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
-                ) {
-                    Text("DBファイルから全復元")
-                }
-                Spacer(modifier = Modifier.height(8.dp))
-                TextButton(
-                    onClick = { showClearConfirm = true },
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
-                ) {
-                    Text("すべてのデータを完全に消去（初期化）")
+            // リストア（危険）セクション
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.1f))
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text("DBリストア (危険)", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.error)
+                    Text(
+                        "注意：現在選択されているデータベースの全データが消去され、バックアップファイルの内容に置き換わります。",
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Button(
+                        onClick = { dbRestoreLauncher.launch(arrayOf("*/*")) },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                    ) {
+                        Text("アクティブなDBに全復元")
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    TextButton(
+                        onClick = { showClearConfirm = true },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
+                    ) {
+                        Text("すべてのデータを完全に消去（初期化）")
+                    }
                 }
             }
         }
@@ -226,5 +232,3 @@ fun ManageDataScreen(
         )
     }
 }
-
-

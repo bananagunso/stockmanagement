@@ -26,46 +26,51 @@ fun DataTypeListScreen(
     var showDeleteDialog by remember { mutableStateOf(false) }
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("データタイプ管理") }) },
+        topBar = { CenterAlignedTopAppBar(title = { Text("データタイプ管理") }) },
         floatingActionButton = {
             FloatingActionButton(onClick = { showDialog = true }) {
                 Text("+", fontSize = 24.sp)
             }
         }
     ) { padding ->
-        Box(
+        Surface(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding),
-            contentAlignment = Alignment.TopCenter
+            color = MaterialTheme.colorScheme.background
         ) {
-            LazyColumn(
-                modifier = Modifier
-                    .widthIn(max = 600.dp)
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.TopCenter
             ) {
-                items(dataTypes) { dataType ->
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .padding(16.dp)
-                                .fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween
+                LazyColumn(
+                    modifier = Modifier
+                        .widthIn(max = 600.dp)
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(dataTypes) { dataType ->
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
                         ) {
-                            Text(text = dataType.name, style = MaterialTheme.typography.bodyLarge)
-                            Button(
-                                onClick = {
-                                    editingDataType = dataType
-                                    inputName = dataType.name
-                                }
+                            Row(
+                                modifier = Modifier
+                                    .padding(16.dp)
+                                    .fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                Text("編集")
+                                Text(text = dataType.name, style = MaterialTheme.typography.bodyLarge)
+                                Button(
+                                    onClick = {
+                                        editingDataType = dataType
+                                        inputName = dataType.name
+                                    }
+                                ) {
+                                    Text("編集")
+                                }
                             }
                         }
                     }

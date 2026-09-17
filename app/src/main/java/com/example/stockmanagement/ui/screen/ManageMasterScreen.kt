@@ -25,6 +25,7 @@ fun ManageMasterScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .statusBarsPadding() // ステータスバーとの重なりを回避
                 .padding(16.dp)
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally

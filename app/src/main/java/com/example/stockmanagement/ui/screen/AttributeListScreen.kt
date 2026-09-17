@@ -30,54 +30,59 @@ fun AttributeListScreen(
     var showDialog by remember { mutableStateOf(false) }
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("属性管理") }) },
+        topBar = { CenterAlignedTopAppBar(title = { Text("属性管理") }) },
         floatingActionButton = {
             FloatingActionButton(onClick = { showDialog = true }) {
                 Text("+", fontSize = 24.sp)
             }
         }
     ) { padding ->
-        Box(
+        Surface(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding),
-            contentAlignment = Alignment.TopCenter
+            color = MaterialTheme.colorScheme.background
         ) {
-            LazyColumn(
-                modifier = Modifier
-                    .widthIn(max = 600.dp)
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.TopCenter
             ) {
-                items(attributes) { attribute ->
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .padding(16.dp)
-                                .fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween
+                LazyColumn(
+                    modifier = Modifier
+                        .widthIn(max = 600.dp)
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(attributes) { attribute ->
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
                         ) {
-                            Column {
-                                Text(text = attribute.name, style = MaterialTheme.typography.bodyLarge)
-                                Text(
-                                    text = "型: ${attribute.dataTypeName}",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.secondary
-                                )
-                            }
-                            Button(
-                                onClick = {
-                                    editingAttribute = attribute
-                                    inputName = attribute.name
-                                    selectedDataTypeId = attribute.dataTypeId
-                                }
+                            Row(
+                                modifier = Modifier
+                                    .padding(16.dp)
+                                    .fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                Text("編集")
+                                Column {
+                                    Text(text = attribute.name, style = MaterialTheme.typography.bodyLarge)
+                                    Text(
+                                        text = "型: ${attribute.dataTypeName}",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.secondary
+                                    )
+                                }
+                                Button(
+                                    onClick = {
+                                        editingAttribute = attribute
+                                        inputName = attribute.name
+                                        selectedDataTypeId = attribute.dataTypeId
+                                    }
+                                ) {
+                                    Text("編集")
+                                }
                             }
                         }
                     }

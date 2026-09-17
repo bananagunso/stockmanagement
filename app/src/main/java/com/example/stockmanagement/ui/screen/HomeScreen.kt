@@ -16,6 +16,7 @@ fun HomeScreen(
     onSearchItemClick: () -> Unit,
     onManageMasterClick: () -> Unit,
     onManageDataClick: () -> Unit,
+    onSwitchDatabaseClick: () -> Unit,
 ) {
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -30,7 +31,7 @@ fun HomeScreen(
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = "電子部品在庫管理",
+                text = "在庫管理",
                 style = MaterialTheme.typography.headlineMedium,
                 modifier = Modifier.padding(bottom = 32.dp),
                 textAlign = TextAlign.Center
@@ -45,7 +46,8 @@ fun HomeScreen(
                 val menuItems = listOf(
                     "Item検索" to onSearchItemClick,
                     "マスタ管理" to onManageMasterClick,
-                    "データ管理" to onManageDataClick
+                    "データベース\n管理" to onManageDataClick,
+                    "データベース\n切り替え" to onSwitchDatabaseClick
                 )
 
                 menuItems.forEach { (label, onClick) ->

@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.stockmanagement.data.entity.CategoryEntity
@@ -44,7 +45,7 @@ fun SearchItemScreen(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
-        BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+        BoxWithConstraints(modifier = Modifier.fillMaxSize().statusBarsPadding()) {
             val isLandscape = maxWidth > maxHeight
 
             if (isLandscape) {
@@ -65,7 +66,9 @@ fun SearchItemScreen(
                     ) {
                         Text(
                             "Item検索",
-                            style = MaterialTheme.typography.headlineSmall
+                            style = MaterialTheme.typography.headlineSmall,
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = TextAlign.Center
                         )
 
                         OutlinedTextField(
@@ -112,9 +115,12 @@ fun SearchItemScreen(
                         .padding(16.dp)
                 ) {
                     Text(
-                        "Item検索画面",
+                        "Item検索",
                         style = MaterialTheme.typography.headlineSmall,
-                        modifier = Modifier.padding(bottom = 16.dp)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 16.dp),
+                        textAlign = TextAlign.Center
                     )
 
                     OutlinedTextField(
