@@ -2,19 +2,17 @@ package com.example.stockmanagement.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.stockmanagement.data.database.MasterDatabase
 import com.example.stockmanagement.data.network.ApiService
 import com.example.stockmanagement.util.TokenManager
 
-class DatabaseSettingsViewModelFactory(
-    private val masterDatabase: MasterDatabase,
+class AuthViewModelFactory(
     private val apiService: ApiService,
     private val tokenManager: TokenManager
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(DatabaseSettingsViewModel::class.java)) {
+        if (modelClass.isAssignableFrom(AuthViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return DatabaseSettingsViewModel(masterDatabase, apiService, tokenManager) as T
+            return AuthViewModel(apiService, tokenManager) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

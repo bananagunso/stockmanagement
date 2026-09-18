@@ -3,6 +3,8 @@ package com.example.stockmanagement.navigation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
@@ -40,15 +42,38 @@ import com.example.stockmanagement.ui.screen.DatabaseSelectionScreen
 import com.example.stockmanagement.viewmodel.DatabaseSettingsViewModel
 import com.example.stockmanagement.viewmodel.DatabaseSettingsViewModelFactory
 
+import com.example.stockmanagement.ui.screen.LoginScreen
+import com.example.stockmanagement.viewmodel.AuthViewModel
+import com.example.stockmanagement.viewmodel.AuthViewModelFactory
+import com.example.stockmanagement.data.network.NetworkModule
+import com.example.stockmanagement.util.TokenManager
+
 @Composable
 fun AppNavigation() {
 
     val navController = rememberNavController()
+    val context = LocalContext.current
+    val tokenManager = remember { TokenManager(context) }
+    val isLoggedIn = remember { mutableStateOf(tokenManager.getToken() != null) }
 
     NavHost(
         navController = navController,
-        startDestination = "home"
+        startDestination = if (isLoggedIn.value) "home" else "login"
     ) {
+        composable("login") {
+            val authViewModel: AuthViewModel = viewModel(
+                factory = AuthViewModelFactory(NetworkModule.getApiService(), tokenManager)
+            )
+            LoginScreen(
+                viewModel = authViewModel,
+                onLoginSuccess = {
+                    isLoggedIn.value = true
+                    navController.navigate("home") {
+                        popUpTo("login") { inclusive = true }
+                    }
+                }
+            )
+        }
 
         composable("home") {
             HomeScreen(
@@ -71,7 +96,11 @@ fun AppNavigation() {
             val context = LocalContext.current
             val database = DatabaseProvider.getMasterDatabase(context)
             val viewModel: DatabaseSettingsViewModel = viewModel(
-                factory = DatabaseSettingsViewModelFactory(database)
+                factory = DatabaseSettingsViewModelFactory(
+                    database,
+                    NetworkModule.getApiService(),
+                    TokenManager(context)
+                )
             )
             DatabaseSelectionScreen(
                 viewModel = viewModel,

@@ -5,7 +5,7 @@ import androidx.room.RoomDatabase
 import com.example.stockmanagement.data.dao.DatabaseInfoDao
 import com.example.stockmanagement.data.entity.DatabaseInfoEntity
 
-@Database(entities = [DatabaseInfoEntity::class], version = 1)
+@Database(entities = [DatabaseInfoEntity::class], version = 2)
 abstract class MasterDatabase : RoomDatabase() {
     abstract fun databaseInfoDao(): DatabaseInfoDao
 }

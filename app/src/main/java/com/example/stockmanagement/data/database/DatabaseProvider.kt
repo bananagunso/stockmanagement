@@ -23,6 +23,7 @@ object DatabaseProvider {
                 "master_config.db"
             )
                 .allowMainThreadQueries() // 同期的なDB切り替えのためにメインスレッドでのクエリを許可
+                .fallbackToDestructiveMigration()
                 .build()
             MASTER_INSTANCE = instance
             instance

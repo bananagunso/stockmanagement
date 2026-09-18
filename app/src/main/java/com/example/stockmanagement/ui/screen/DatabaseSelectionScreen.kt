@@ -28,6 +28,11 @@ fun DatabaseSelectionScreen(
     var showDeleteConfirm by remember { mutableStateOf<DatabaseInfoEntity?>(null) }
     val context = LocalContext.current
 
+    // 画面表示時にサーバーと同期
+    LaunchedEffect(Unit) {
+        viewModel.refreshGroups()
+    }
+
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(

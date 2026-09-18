@@ -9,5 +9,6 @@ data class DatabaseInfoEntity(
     val id: Int = 0,
     val displayName: String,
     val fileName: String,
-    val isActive: Boolean = false
+    val isActive: Boolean = false,
+    val remoteGroupId: Int? = null // サーバー上のinventory_groups.idと紐付け
 )
