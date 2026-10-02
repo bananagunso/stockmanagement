@@ -17,15 +17,23 @@ class TokenManager(context: Context) {
         EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
     )
 
-    fun saveToken(token: String) {
-        prefs.edit().putString("auth_token", token).apply()
+    fun saveToken(token: String, email: String? = null) {
+        val editor = prefs.edit().putString("auth_token", token)
+        if (!email.isNullOrEmpty()) {
+            editor.putString("user_email", email)
+        }
+        editor.apply()
     }
 
     fun getToken(): String? {
         return prefs.getString("auth_token", null)
     }
 
+    fun getEmail(): String? {
+        return prefs.getString("user_email", null)
+    }
+
     fun clearToken() {
-        prefs.edit().remove("auth_token").apply()
+        prefs.edit().remove("auth_token").remove("user_email").apply()
     }
 }

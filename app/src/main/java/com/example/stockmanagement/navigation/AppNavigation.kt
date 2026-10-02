@@ -48,6 +48,10 @@ import com.example.stockmanagement.viewmodel.AuthViewModelFactory
 import com.example.stockmanagement.data.network.NetworkModule
 import com.example.stockmanagement.util.TokenManager
 
+import com.example.stockmanagement.data.repository.SyncRepository
+import com.example.stockmanagement.viewmodel.SyncViewModel
+import com.example.stockmanagement.viewmodel.SyncViewModelFactory
+
 @Composable
 fun AppNavigation() {
 
@@ -76,7 +80,22 @@ fun AppNavigation() {
         }
 
         composable("home") {
+            val database = DatabaseProvider.getDatabase(context)
+            val syncRepository = remember(database) {
+                SyncRepository(
+                    context = context,
+                    database = database,
+                    apiService = NetworkModule.getApiService(),
+                    tokenManager = tokenManager
+                )
+            }
+            val syncViewModel: SyncViewModel = viewModel(
+                factory = SyncViewModelFactory(syncRepository)
+            )
+
             HomeScreen(
+                syncViewModel = syncViewModel,
+                userEmail = tokenManager.getEmail() ?: "",
                 onSearchItemClick = {
                     navController.navigate("searchItem")
                 },
@@ -88,6 +107,19 @@ fun AppNavigation() {
                 },
                 onSwitchDatabaseClick = {
                     navController.navigate("databaseSelection")
+                },
+                onLogoutClick = {
+                    syncViewModel.logout(
+                        context = context,
+                        database = database,
+                        tokenManager = tokenManager,
+                        onLoggedOut = {
+                            isLoggedIn.value = false
+                            navController.navigate("login") {
+                                popUpTo(0) { inclusive = true }
+                            }
+                        }
+                    )
                 }
             )
         }

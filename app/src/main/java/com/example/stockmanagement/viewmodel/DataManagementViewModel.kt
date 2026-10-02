@@ -191,14 +191,18 @@ class DataManagementViewModel(
                 if (dbWal.exists()) dbWal.delete()
                 if (dbShm.exists()) dbShm.delete()
 
-                // 3. ファイルをコピー（全削除＆リストアに相当）
+                // 3. ファイルをコピー（リストア）
                 FileOutputStream(dbFile).use { output ->
                     inputStream.use { input ->
                         input.copyTo(output)
                     }
                 }
 
-                _event.emit("リストアが完了しました。アプリを再起動してください。")
+                // 4. 同期設定・タイムスタンプをリセット（次回「データ同期」時にサーバーへマージ更新されるように設定）
+                context.getSharedPreferences("sync_prefs", Context.MODE_PRIVATE)
+                    .edit().clear().apply()
+
+                _event.emit("リストアが完了しました。次回「データ同期」実行時にサーバーとマージ（統合）されます。")
             } catch (e: Exception) {
                 _event.emit("リストアに失敗しました: ${e.message}")
             }

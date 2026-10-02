@@ -16,5 +16,15 @@ interface ApiService {
     @GET("api/groups/list.php")
     suspend fun getGroups(@Header("Authorization") token: String): Response<GroupListResponse>
     
-    // 今後、ここに同期(sync)用APIを追加していきます
+    @POST("api/sync/push.php")
+    suspend fun pushSync(
+        @Header("Authorization") token: String,
+        @Body request: SyncPushRequest
+    ): Response<SyncPushResponse>
+
+    @POST("api/sync/pull.php")
+    suspend fun pullSync(
+        @Header("Authorization") token: String,
+        @Body request: SyncPullRequest
+    ): Response<SyncPullResponse>
 }

@@ -137,25 +137,23 @@ fun ManageDataScreen(
                 }
             }
 
-            // リストア（危険）セクション
+            // リストア・統合セクション
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.1f))
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Text("DBリストア (危険)", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.error)
+                    Text("DBリストア (復元・マージ)", style = MaterialTheme.typography.titleMedium)
                     Text(
-                        "注意：現在選択されているデータベースの全データが消去され、バックアップファイルの内容に置き換わります。",
+                        "バックアップファイルからデータを復元します。復元されたデータは現在のデータとマージ（統合）され、次回「データ同期」実行時にサーバーへ反映されます。",
                         style = MaterialTheme.typography.bodySmall
                     )
                     Spacer(modifier = Modifier.height(12.dp))
                     Button(
                         onClick = { dbRestoreLauncher.launch(arrayOf("*/*")) },
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                        modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text("アクティブなDBに全復元")
+                        Text("バックアップから復元・マージ")
                     }
                     Spacer(modifier = Modifier.height(8.dp))
                     TextButton(
@@ -213,8 +211,8 @@ fun ManageDataScreen(
     if (showRestoreConfirm && selectedRestoreUri != null) {
         AlertDialog(
             onDismissRequest = { showRestoreConfirm = false },
-            title = { Text("DB全復元の最終確認") },
-            text = { Text("現在のすべてのデータが削除されます。本当に実行しますか？") },
+            title = { Text("DB復元の確認") },
+            text = { Text("選択したバックアップファイルからデータを復元します。復元されたデータは次回「データ同期」を実行した際にサーバーと統合（マージ）されます。よろしいですか？") },
             confirmButton = {
                 Button(
                     onClick = {
@@ -224,9 +222,8 @@ fun ManageDataScreen(
                             }
                         }
                         showRestoreConfirm = false
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
-                ) { Text("全削除して復元") }
+                    }
+                ) { Text("復元実行") }
             },
             dismissButton = { TextButton(onClick = { showRestoreConfirm = false }) { Text("キャンセル") } }
         )

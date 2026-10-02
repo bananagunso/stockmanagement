@@ -20,7 +20,7 @@ interface DataTypeDao {
     suspend fun update(dataType: DataTypeEntity)
 
     @Query("SELECT * FROM data_type WHERE data_type_id = :id")
-    suspend fun getById(id: Int): DataTypeEntity
+    suspend fun getById(id: Int): DataTypeEntity?
 
     @Query(
         """
@@ -37,4 +37,10 @@ interface DataTypeDao {
         dataTypeId: Int,
         deletedAt: Long = System.currentTimeMillis()
     )
+
+    @Query("SELECT * FROM data_type WHERE updated_at > :since")
+    suspend fun getModifiedSince(since: Long): List<DataTypeEntity>
+
+    @Query("SELECT * FROM data_type WHERE uuid = :uuid LIMIT 1")
+    suspend fun getByUuid(uuid: String): DataTypeEntity?
 }

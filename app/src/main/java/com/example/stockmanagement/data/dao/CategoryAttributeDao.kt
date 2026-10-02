@@ -100,4 +100,10 @@ interface CategoryAttributeDao {
         attributeId: Int,
         deletedAt: Long = System.currentTimeMillis()
     )
+
+    @Query("SELECT * FROM categoryattribute WHERE updated_at > :since")
+    suspend fun getModifiedSince(since: Long): List<CategoryAttributeEntity>
+
+    @Query("SELECT * FROM categoryattribute WHERE uuid = :uuid LIMIT 1")
+    suspend fun getByUuid(uuid: String): CategoryAttributeEntity?
 }

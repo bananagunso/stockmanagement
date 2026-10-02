@@ -1,12 +1,15 @@
 package com.example.stockmanagement.ui.screen
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.example.stockmanagement.util.StringUtil
 import com.example.stockmanagement.viewmodel.AuthViewModel
 
 @Composable
@@ -39,14 +42,20 @@ fun LoginScreen(
             )
 
             if (!isCodeSent) {
-                // メールアドレス入力フェーズ
+                // メールアドレス入力フェーズ（英数字・記号キーボード固定 ＋ 自動半角変換）
                 OutlinedTextField(
                     value = email,
-                    onValueChange = { viewModel.setEmail(it) },
+                    onValueChange = { input ->
+                        val halfWidthEmail = StringUtil.toHalfWidth(input).replace(" ", "")
+                        viewModel.setEmail(halfWidthEmail)
+                    },
                     label = { Text("メールアドレス") },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
-                    enabled = !isLoading
+                    enabled = !isLoading,
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Email
+                    )
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -66,7 +75,7 @@ fun LoginScreen(
                     }
                 }
             } else {
-                // コード入力フェーズ
+                // コード入力フェーズ（数字テンキー固定 ＋ 数字のみ・最大6桁制御）
                 Text(
                     text = "${email} 宛に送信された6桁のコードを入力してください",
                     style = MaterialTheme.typography.bodyMedium,
@@ -76,11 +85,19 @@ fun LoginScreen(
 
                 OutlinedTextField(
                     value = inputCode,
-                    onValueChange = { if (it.length <= 6) inputCode = it },
+                    onValueChange = { input ->
+                        val digitsOnly = StringUtil.toHalfWidth(input).filter { it.isDigit() }
+                        if (digitsOnly.length <= 6) {
+                            inputCode = digitsOnly
+                        }
+                    },
                     label = { Text("6桁のコード") },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
-                    enabled = !isLoading
+                    enabled = !isLoading,
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number
+                    )
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))

@@ -54,4 +54,10 @@ interface ItemDao {
 
     @Query("SELECT * FROM item WHERE item_id = :id")
     suspend fun getById(id: Int): ItemEntity
+
+    @Query("SELECT * FROM item WHERE updated_at > :since")
+    suspend fun getModifiedSince(since: Long): List<ItemEntity>
+
+    @Query("SELECT * FROM item WHERE uuid = :uuid LIMIT 1")
+    suspend fun getByUuid(uuid: String): ItemEntity?
 }

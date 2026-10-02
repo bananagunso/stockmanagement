@@ -23,4 +23,10 @@ interface ItemAttributeValueDao {
 
     @Query("SELECT * FROM item_attribute_value WHERE item_id = :itemId AND categoryattribute_id = :categoryAttributeId AND deleted_at IS NULL LIMIT 1")
     suspend fun getByItemAndCategoryAttribute(itemId: Int, categoryAttributeId: Int): ItemAttributeValueEntity?
+
+    @Query("SELECT * FROM item_attribute_value WHERE updated_at > :since")
+    suspend fun getModifiedSince(since: Long): List<ItemAttributeValueEntity>
+
+    @Query("SELECT * FROM item_attribute_value WHERE uuid = :uuid LIMIT 1")
+    suspend fun getByUuid(uuid: String): ItemAttributeValueEntity?
 }
