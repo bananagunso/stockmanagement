@@ -36,7 +36,7 @@ fun LoginScreen(
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = if (isCodeSent) "認証コード入力" else "ログイン・登録",
+                text = if (isCodeSent) "認証コード入力" else "ログイン",
                 style = MaterialTheme.typography.headlineMedium,
                 modifier = Modifier.padding(bottom = 32.dp)
             )

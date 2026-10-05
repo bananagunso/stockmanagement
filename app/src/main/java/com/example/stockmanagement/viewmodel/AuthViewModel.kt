@@ -61,7 +61,7 @@ class AuthViewModel(
                 val response = apiService.verifyCode(AuthVerifyCodeRequest(_email.value, code))
                 val authResponse = response.body()
                 if (response.isSuccessful && authResponse?.success == true && authResponse.token != null) {
-                    tokenManager.saveToken(authResponse.token, _email.value)
+                    tokenManager.saveToken(authResponse.token, _email.value, authResponse.role ?: "user")
                     onLoginSuccess()
                 } else {
                     _errorMessage.value = authResponse?.message ?: "認証に失敗しました"

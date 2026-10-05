@@ -7,6 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
+import kotlinx.coroutines.runBlocking
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -49,8 +50,11 @@ import com.example.stockmanagement.data.network.NetworkModule
 import com.example.stockmanagement.util.TokenManager
 
 import com.example.stockmanagement.data.repository.SyncRepository
+import com.example.stockmanagement.ui.screen.UserManagementScreen
 import com.example.stockmanagement.viewmodel.SyncViewModel
 import com.example.stockmanagement.viewmodel.SyncViewModelFactory
+import com.example.stockmanagement.viewmodel.UserManagementViewModel
+import com.example.stockmanagement.viewmodel.UserManagementViewModelFactory
 
 @Composable
 fun AppNavigation() {
@@ -96,6 +100,7 @@ fun AppNavigation() {
             HomeScreen(
                 syncViewModel = syncViewModel,
                 userEmail = tokenManager.getEmail() ?: "",
+                userRole = tokenManager.getRole(),
                 onSearchItemClick = {
                     navController.navigate("searchItem")
                 },
@@ -107,6 +112,9 @@ fun AppNavigation() {
                 },
                 onSwitchDatabaseClick = {
                     navController.navigate("databaseSelection")
+                },
+                onManageUserClick = {
+                    navController.navigate("userManagement")
                 },
                 onLogoutClick = {
                     syncViewModel.logout(
@@ -297,6 +305,28 @@ fun AppNavigation() {
                 factory = factory
             )
             DataTypeListScreen(viewModel)
+        }
+
+        composable("userManagement") {
+            val context = LocalContext.current
+            val masterDb = DatabaseProvider.getMasterDatabase(context)
+            val activeInfo = remember { runBlocking { masterDb.databaseInfoDao().getActive() } }
+
+            val activeGroupId = when {
+                activeInfo?.remoteGroupId != null -> activeInfo.remoteGroupId
+                activeInfo?.displayName == "デフォルト" || activeInfo?.id == 1 -> 1
+                else -> activeInfo?.id ?: 1
+            }
+
+            val userViewModel: UserManagementViewModel = viewModel(
+                factory = UserManagementViewModelFactory(masterDb, NetworkModule.getApiService(), tokenManager)
+            )
+            UserManagementScreen(
+                viewModel = userViewModel,
+                groupId = activeGroupId,
+                currentUserEmail = tokenManager.getEmail() ?: "",
+                onBack = { navController.popBackStack() }
+            )
         }
     }
 }

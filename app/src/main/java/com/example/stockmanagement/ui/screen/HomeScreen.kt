@@ -24,10 +24,12 @@ import com.example.stockmanagement.viewmodel.SyncViewModel
 fun HomeScreen(
     syncViewModel: SyncViewModel? = null,
     userEmail: String = "",
+    userRole: String = "manager",
     onSearchItemClick: () -> Unit,
     onManageMasterClick: () -> Unit,
     onManageDataClick: () -> Unit,
     onSwitchDatabaseClick: () -> Unit,
+    onManageUserClick: () -> Unit = {},
     onLogoutClick: () -> Unit = {}
 ) {
     val context = LocalContext.current
@@ -64,12 +66,12 @@ fun HomeScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(vertical = 16.dp, horizontal = 24.dp)
+                    .padding(vertical = 12.dp, horizontal = 24.dp)
                     .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically)
+                verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterVertically)
             ) {
-                val menuItems: List<Pair<String, () -> Unit>> = listOf(
+                val menuItems = mutableListOf<Pair<String, () -> Unit>>(
                     "Item検索" to onSearchItemClick,
                     "マスタ管理" to onManageMasterClick,
                     "データ同期" to { syncViewModel?.syncData() },
@@ -77,12 +79,17 @@ fun HomeScreen(
                     "データベース切り替え" to onSwitchDatabaseClick
                 )
 
+                // 管理者（manager）または全体管理者（system_admin）のみ「ユーザー管理」を表示
+                if (userRole == "manager" || userRole == "system_admin") {
+                    menuItems.add(3, "ユーザー管理" to onManageUserClick)
+                }
+
                 menuItems.forEach { (label, onClick) ->
                     Card(
                         onClick = onClick,
                         modifier = Modifier
                             .fillMaxWidth(0.85f)
-                            .height(108.dp),
+                            .height(72.dp),
                         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
                         enabled = !isSyncing
                     ) {
@@ -91,11 +98,11 @@ fun HomeScreen(
                             contentAlignment = Alignment.Center
                         ) {
                             if (label == "データ同期" && isSyncing) {
-                                CircularProgressIndicator(modifier = Modifier.size(28.dp))
+                                CircularProgressIndicator(modifier = Modifier.size(24.dp))
                             } else {
                                 Text(
                                     text = label,
-                                    style = MaterialTheme.typography.titleLarge,
+                                    style = MaterialTheme.typography.titleMedium,
                                     textAlign = TextAlign.Center
                                 )
                             }

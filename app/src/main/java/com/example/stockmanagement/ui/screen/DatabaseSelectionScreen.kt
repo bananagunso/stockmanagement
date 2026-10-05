@@ -63,8 +63,9 @@ fun DatabaseSelectionScreen(
                     DatabaseItemRow(
                         info = info,
                         onSelect = { 
-                            viewModel.switchDatabase(info.id)
-                            onDatabaseSwitched()
+                            viewModel.switchDatabase(info) {
+                                onDatabaseSwitched()
+                            }
                         },
                         onEdit = {
                             editingDb = info

@@ -23,4 +23,7 @@ interface DatabaseInfoDao {
 
     @Query("SELECT * FROM database_info WHERE isActive = 1 LIMIT 1")
     suspend fun getActive(): DatabaseInfoEntity?
+
+    @Query("SELECT * FROM database_info WHERE isActive = 1 LIMIT 1")
+    fun getActiveFlow(): Flow<DatabaseInfoEntity?>
 }
