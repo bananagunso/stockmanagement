@@ -26,4 +26,10 @@ interface DatabaseInfoDao {
 
     @Query("SELECT * FROM database_info WHERE isActive = 1 LIMIT 1")
     fun getActiveFlow(): Flow<DatabaseInfoEntity?>
+
+    @Query("DELETE FROM database_info")
+    suspend fun deleteAll()
+
+    @Query("SELECT * FROM database_info ORDER BY id ASC")
+    suspend fun getAllList(): List<DatabaseInfoEntity>
 }

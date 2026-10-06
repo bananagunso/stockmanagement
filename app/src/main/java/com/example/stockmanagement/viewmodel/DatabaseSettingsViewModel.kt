@@ -10,10 +10,13 @@ import com.example.stockmanagement.data.network.ApiService
 import com.example.stockmanagement.data.network.CreateGroupRequest
 import com.example.stockmanagement.util.TokenManager
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -28,6 +31,9 @@ class DatabaseSettingsViewModel(
     private val _isRefreshing = MutableStateFlow(false)
     val isRefreshing = _isRefreshing.asStateFlow()
 
+    private val _event = MutableSharedFlow<String>()
+    val event: SharedFlow<String> = _event.asSharedFlow()
+
     val databaseList: StateFlow<List<DatabaseInfoEntity>> =
         masterDatabase.databaseInfoDao().getAll()
             .stateIn(
@@ -37,41 +43,71 @@ class DatabaseSettingsViewModel(
             )
 
     // サーバーからグループ一覧を取得して同期
-    fun refreshGroups() {
-        val token = tokenManager.getToken() ?: return
-        
-        viewModelScope.launch {
-            _isRefreshing.value = true
-            try {
-                val response = apiService.getGroups("Bearer $token")
-                if (response.isSuccessful && response.body()?.success == true) {
-                    val remoteGroups = response.body()?.groups ?: emptyList()
-                    val localDbs = databaseList.value
+    suspend fun refreshGroups(): List<DatabaseInfoEntity> {
+        val token = tokenManager.getToken() ?: return masterDatabase.databaseInfoDao().getAllList()
+        _isRefreshing.value = true
+        try {
+            val response = apiService.getGroups("Bearer $token")
+            if (response.isSuccessful && response.body()?.success == true) {
+                val remoteGroups = response.body()?.groups ?: emptyList()
+                val remoteGroupIds = remoteGroups.map { it.id }.toSet()
+                val localDbs = masterDatabase.databaseInfoDao().getAllList()
 
-                    remoteGroups.forEach { remote ->
-                        val existing = localDbs.find { it.remoteGroupId == remote.id || (it.remoteGroupId == null && it.displayName == remote.display_name) }
-                        if (existing == null) {
-                            val fileName = "db_remote_${remote.id}.db"
-                            masterDatabase.databaseInfoDao().insert(
-                                DatabaseInfoEntity(
-                                    displayName = remote.display_name,
-                                    fileName = fileName,
-                                    remoteGroupId = remote.id
-                                )
+                // 1. サーバー上に存在する正当なグループを同調・挿入・更新
+                remoteGroups.forEach { remote ->
+                    val existing = localDbs.find { it.remoteGroupId == remote.id }
+                    if (existing == null) {
+                        val fileName = "db_remote_${remote.id}.db"
+                        masterDatabase.databaseInfoDao().insert(
+                            DatabaseInfoEntity(
+                                displayName = remote.display_name,
+                                fileName = fileName,
+                                remoteGroupId = remote.id
                             )
-                        } else if (existing.remoteGroupId == null) {
-                            // 未紐付けのローカルDBにサーバーグループID（remoteGroupId）をバインド
-                            masterDatabase.databaseInfoDao().update(
-                                existing.copy(remoteGroupId = remote.id)
+                        )
+                    } else {
+                        masterDatabase.databaseInfoDao().update(
+                            existing.copy(
+                                displayName = remote.display_name,
+                                remoteGroupId = remote.id
                             )
-                        }
+                        )
                     }
                 }
-            } catch (e: Exception) {
-                e.printStackTrace()
-            } finally {
-                _isRefreshing.value = false
+
+                // 2. このユーザーが所属していない（未バインドローカルDBや前アカウントのゴミ）エントリを全削除
+                localDbs.forEach { local ->
+                    if (local.remoteGroupId == null || local.remoteGroupId !in remoteGroupIds) {
+                        masterDatabase.databaseInfoDao().delete(local)
+                    }
+                }
+
+                // 3. アクティブなDBが未選択の場合、先頭のリモートDBを自動アクティブ化
+                val currentActive = masterDatabase.databaseInfoDao().getActive()
+                if (currentActive == null && remoteGroups.isNotEmpty()) {
+                    val firstRemote = remoteGroups.first()
+                    val updatedList = masterDatabase.databaseInfoDao().getAllList()
+                    val target = updatedList.find { it.remoteGroupId == firstRemote.id }
+                    if (target != null) {
+                        masterDatabase.databaseInfoDao().setActive(target.id)
+                        DatabaseProvider.switchDatabase()
+                    }
+                }
+            } else {
+                _event.emit("グループ一覧取得エラー: " + response.message())
             }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            _event.emit("通信エラー: ${e.message}")
+        } finally {
+            _isRefreshing.value = false
+        }
+        return masterDatabase.databaseInfoDao().getAllList()
+    }
+
+    fun launchRefreshGroups() {
+        viewModelScope.launch {
+            refreshGroups()
         }
     }
 
@@ -92,6 +128,11 @@ class DatabaseSettingsViewModel(
                                 remoteGroupId = group.id
                             )
                         )
+                        val inserted = masterDatabase.databaseInfoDao().getAllList().find { it.remoteGroupId == group.id }
+                        if (inserted != null) {
+                            masterDatabase.databaseInfoDao().setActive(inserted.id)
+                            DatabaseProvider.switchDatabase()
+                        }
                         _isRefreshing.value = false
                         return@launch
                     }
@@ -99,11 +140,6 @@ class DatabaseSettingsViewModel(
                     e.printStackTrace()
                 }
             }
-            // フォールバック（ローカル作成）
-            val fileName = "db_${System.currentTimeMillis()}.db"
-            masterDatabase.databaseInfoDao().insert(
-                DatabaseInfoEntity(displayName = name, fileName = fileName)
-            )
             _isRefreshing.value = false
         }
     }

@@ -33,6 +33,12 @@ fun DatabaseSelectionScreen(
         viewModel.refreshGroups()
     }
 
+    LaunchedEffect(Unit) {
+        viewModel.event.collect { message ->
+            android.widget.Toast.makeText(context, message, android.widget.Toast.LENGTH_SHORT).show()
+        }
+    }
+
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(

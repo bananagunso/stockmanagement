@@ -22,7 +22,7 @@ object DatabaseProvider {
                 MasterDatabase::class.java,
                 "master_config.db"
             )
-                .allowMainThreadQueries() // 同期的なDB切り替えのためにメインスレッドでのクエリを許可
+                .allowMainThreadQueries()
                 .fallbackToDestructiveMigration()
                 .build()
             MASTER_INSTANCE = instance
@@ -36,15 +36,6 @@ object DatabaseProvider {
         // 現在アクティブなDB情報を取得
         val activeInfo = runBlocking { master.databaseInfoDao().getActive() }
         val dbName = activeInfo?.fileName ?: "stock_management.db"
-
-        // デフォルトのDB情報がない場合は作成（初回起動用）
-        if (activeInfo == null && dbName == "stock_management.db") {
-            runBlocking {
-                master.databaseInfoDao().insert(
-                    DatabaseInfoEntity(displayName = "デフォルト", fileName = dbName, isActive = true)
-                )
-            }
-        }
 
         return synchronized(this) {
             if (APP_INSTANCE == null || CURRENT_DB_NAME != dbName) {

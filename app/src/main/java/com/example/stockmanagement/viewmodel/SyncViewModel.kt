@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.stockmanagement.data.database.AppDatabase
+import com.example.stockmanagement.data.database.DatabaseProvider
 import com.example.stockmanagement.data.repository.SyncRepository
 import com.example.stockmanagement.util.TokenManager
 import kotlinx.coroutines.Dispatchers
@@ -64,11 +65,17 @@ class SyncViewModel(
                 // 2. ローカルDBを安全にクリア（異アカウントでのデータ混在・汚染防止）
                 database.clearAllTables()
 
-                // 3. 同期設定・タイムスタンプの消去
+                // 3. マスタDB（MasterDatabase）に残った前ユーザーの他DBカード・設定情報を完全抹消
+                val masterDb = DatabaseProvider.getMasterDatabase(context)
+                masterDb.databaseInfoDao().deleteAll()
+                masterDb.databaseInfoDao().setActive(1)
+                DatabaseProvider.switchDatabase()
+
+                // 4. 同期設定・タイムスタンプの消去
                 context.getSharedPreferences("sync_prefs", Context.MODE_PRIVATE)
                     .edit().clear().apply()
 
-                // 4. 認証トークンの消去
+                // 5. 認証トークンの消去
                 tokenManager.clearToken()
 
                 withContext(Dispatchers.Main) {

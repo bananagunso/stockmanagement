@@ -34,26 +34,39 @@ class UserManagementViewModel(
     private val _event = MutableSharedFlow<String>()
     val event: SharedFlow<String> = _event
 
-    private suspend fun resolveValidRemoteGroupId(requestedGroupId: Int, token: String): Int {
+    private suspend fun resolveValidRemoteGroupId(token: String): Int? {
         val activeInfo = masterDatabase.databaseInfoDao().getActive()
-        if (activeInfo != null) {
-            if (activeInfo.remoteGroupId != null) {
-                return activeInfo.remoteGroupId
-            }
-            if (activeInfo.displayName != "デフォルト" && activeInfo.id != 1) {
-                try {
-                    val response = apiService.createGroup("Bearer $token", CreateGroupRequest(activeInfo.displayName))
-                    if (response.isSuccessful && response.body()?.success == true && response.body()?.group != null) {
-                        val newRemoteId = response.body()!!.group!!.id
-                        masterDatabase.databaseInfoDao().update(activeInfo.copy(remoteGroupId = newRemoteId))
-                        return newRemoteId
-                    }
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
-            }
+        if (activeInfo == null) {
+            _event.emit("データベースが存在しません。先に『データベース切り替え』から作成してください。")
+            return null
         }
-        return if (requestedGroupId > 0) requestedGroupId else 1
+        if (activeInfo.remoteGroupId != null) {
+            return activeInfo.remoteGroupId
+        }
+        try {
+            val response = apiService.createGroup("Bearer $token", CreateGroupRequest(activeInfo.displayName))
+            if (response.isSuccessful && response.body()?.success == true && response.body()?.group != null) {
+                val newRemoteId = response.body()!!.group!!.id
+                masterDatabase.databaseInfoDao().update(activeInfo.copy(remoteGroupId = newRemoteId))
+                return newRemoteId
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return activeInfo.remoteGroupId
+    }
+
+    private suspend fun fetchUsersInternal(targetGroupId: Int, token: String) {
+        try {
+            val response = apiService.getUsers("Bearer $token", UserListRequest(targetGroupId))
+            if (response.isSuccessful && response.body()?.success == true) {
+                _users.value = response.body()?.users ?: emptyList()
+            } else {
+                _event.emit(response.body()?.message ?: "ユーザー一覧の取得に失敗しました")
+            }
+        } catch (e: Exception) {
+            _event.emit("通信エラーが発生しました: ${e.message}")
+        }
     }
 
     fun loadUsers(groupId: Int = 1) {
@@ -62,15 +75,10 @@ class UserManagementViewModel(
         _isLoading.value = true    // 同期的にローディングフラグを立てる
         viewModelScope.launch {
             try {
-                val targetGroupId = resolveValidRemoteGroupId(groupId, token)
-                val response = apiService.getUsers("Bearer $token", UserListRequest(targetGroupId))
-                if (response.isSuccessful && response.body()?.success == true) {
-                    _users.value = response.body()?.users ?: emptyList()
-                } else {
-                    _event.emit(response.body()?.message ?: "ユーザー一覧の取得に失敗しました")
+                val targetGroupId = resolveValidRemoteGroupId(token)
+                if (targetGroupId != null) {
+                    fetchUsersInternal(targetGroupId, token)
                 }
-            } catch (e: Exception) {
-                _event.emit("通信エラーが発生しました: ${e.message}")
             } finally {
                 _isLoading.value = false
             }
@@ -82,11 +90,13 @@ class UserManagementViewModel(
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                val targetGroupId = resolveValidRemoteGroupId(groupId, token)
+                val targetGroupId = resolveValidRemoteGroupId(token)
+                if (targetGroupId == null) return@launch
+
                 val response = apiService.addUser("Bearer $token", UserAddRequest(targetGroupId, email, role))
                 if (response.isSuccessful && response.body()?.success == true) {
                     _event.emit("ユーザーを追加（招待）しました")
-                    loadUsers(targetGroupId)
+                    fetchUsersInternal(targetGroupId, token)
                 } else {
                     _event.emit(response.body()?.message ?: "ユーザー追加に失敗しました")
                 }
@@ -103,11 +113,13 @@ class UserManagementViewModel(
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                val targetGroupId = resolveValidRemoteGroupId(groupId, token)
+                val targetGroupId = resolveValidRemoteGroupId(token)
+                if (targetGroupId == null) return@launch
+
                 val response = apiService.updateUserRole("Bearer $token", UserUpdateRoleRequest(targetGroupId, userId, newRole))
                 if (response.isSuccessful && response.body()?.success == true) {
                     _event.emit("権限を変更しました")
-                    loadUsers(targetGroupId)
+                    fetchUsersInternal(targetGroupId, token)
                 } else {
                     _event.emit(response.body()?.message ?: "権限変更に失敗しました")
                 }
@@ -124,11 +136,13 @@ class UserManagementViewModel(
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                val targetGroupId = resolveValidRemoteGroupId(groupId, token)
+                val targetGroupId = resolveValidRemoteGroupId(token)
+                if (targetGroupId == null) return@launch
+
                 val response = apiService.deleteUser("Bearer $token", UserDeleteRequest(targetGroupId, userId))
                 if (response.isSuccessful && response.body()?.success == true) {
                     _event.emit("ユーザーを除外しました")
-                    loadUsers(targetGroupId)
+                    fetchUsersInternal(targetGroupId, token)
                 } else {
                     _event.emit(response.body()?.message ?: "ユーザー除外に失敗しました")
                 }

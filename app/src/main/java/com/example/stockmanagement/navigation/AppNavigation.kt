@@ -85,6 +85,7 @@ fun AppNavigation() {
 
         composable("home") {
             val database = DatabaseProvider.getDatabase(context)
+            val masterDb = DatabaseProvider.getMasterDatabase(context)
             val syncRepository = remember(database) {
                 SyncRepository(
                     context = context,
@@ -96,9 +97,13 @@ fun AppNavigation() {
             val syncViewModel: SyncViewModel = viewModel(
                 factory = SyncViewModelFactory(syncRepository)
             )
+            val dbViewModel: DatabaseSettingsViewModel = viewModel(
+                factory = DatabaseSettingsViewModelFactory(masterDb, NetworkModule.getApiService(), tokenManager)
+            )
 
             HomeScreen(
                 syncViewModel = syncViewModel,
+                dbViewModel = dbViewModel,
                 userEmail = tokenManager.getEmail() ?: "",
                 userRole = tokenManager.getRole(),
                 onSearchItemClick = {
@@ -310,7 +315,8 @@ fun AppNavigation() {
         composable("userManagement") {
             val context = LocalContext.current
             val masterDb = DatabaseProvider.getMasterDatabase(context)
-            val activeInfo = remember { runBlocking { masterDb.databaseInfoDao().getActive() } }
+            // 画面表示時に毎回最新のアクティブDB情報を同期取得（remember による古い状態キャッシュを防止）
+            val activeInfo = runBlocking { masterDb.databaseInfoDao().getActive() }
 
             val activeGroupId = when {
                 activeInfo?.remoteGroupId != null -> activeInfo.remoteGroupId
